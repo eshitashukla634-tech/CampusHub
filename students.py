@@ -1,0 +1,84 @@
+import sqlite3
+
+
+def add_student(name, roll_no, course, email):
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute("""
+            INSERT INTO students (name, roll_no, course, email)
+            VALUES (?, ?, ?, ?)
+        """, (name, roll_no, course, email))
+
+        connection.commit()
+        print("Student added successfully!")
+
+    except sqlite3.IntegrityError:
+        print("⚠️ Roll number already exists!")
+
+    finally:
+        connection.close()
+
+
+def view_students():
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT * FROM students")
+
+    students = cursor.fetchall()
+
+    connection.close()
+
+    if not students:
+        print("No students found.")
+        return
+
+    print("\n===== Student Records =====")
+
+    for student in students:
+        print("ID:", student[0])
+        print("Name:", student[1])
+        print("Roll No:", student[2])
+        print("Course:", student[3])
+        print("Email:", student[4])
+        print("--------------------------")
+
+
+def update_student(student_id, name, roll_no, course, email):
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        UPDATE students
+        SET name = ?, roll_no = ?, course = ?, email = ?
+        WHERE id = ?
+    """, (name, roll_no, course, email, student_id))
+
+    connection.commit()
+
+    if cursor.rowcount == 0:
+        print("Student not found.")
+    else:
+        print("Student updated successfully!")
+
+    connection.close()
+
+def delete_student(student_id):
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    cursor.execute(
+        "DELETE FROM students WHERE id = ?",
+        (student_id,)
+    )
+
+    connection.commit()
+
+    if cursor.rowcount == 0:
+        print("Student not found.")
+    else:
+        print("Student deleted successfully!")
+
+    connection.close()
