@@ -1,4 +1,4 @@
-from students import add_student, view_students, update_student, delete_student
+from students import add_student, view_students, update_student, delete_student, search_student
 
 
 print("================================")
@@ -12,7 +12,8 @@ while True:
     print("2. View Students")
     print("3. Update Student")
     print("4. Delete Student")
-    print("5. Exit")
+    print("5. Search Student")
+    print("6. Exit")
 
     choice = input("\nEnter your choice: ")
 

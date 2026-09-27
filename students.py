@@ -82,3 +82,30 @@ def delete_student(student_id):
         print("Student deleted successfully!")
 
     connection.close()
+
+def search_student(search_value):
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT * FROM students
+        WHERE name LIKE ? OR roll_no LIKE ?
+    """, (f"%{search_value}%", f"%{search_value}%"))
+
+    students = cursor.fetchall()
+
+    connection.close()
+
+    if not students:
+        print("No student found.")
+        return
+
+    print("\n===== Search Results =====")
+
+    for student in students:
+        print("ID:", student[0])
+        print("Name:", student[1])
+        print("Roll No:", student[2])
+        print("Course:", student[3])
+        print("Email:", student[4])
+        print("--------------------------")
