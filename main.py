@@ -49,6 +49,12 @@ while True:
 
     elif choice == "5":
 
+        search_term = input("Enter name or roll number to search: ")
+
+        search_student(search_term)
+
+    elif choice == "6":
+
         print("Thank you for using CampusHub!")
         break
 
