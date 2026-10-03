@@ -337,5 +337,26 @@ def delete_assignment(assignment_id):
 
     return redirect(url_for("assignments"))
 
+
+@app.route("/update-assignment-status/<int:assignment_id>/<status>")
+def update_assignment_status(assignment_id, status):
+
+    if status not in ["Pending", "Completed"]:
+        return "Invalid status", 400
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        UPDATE assignments
+        SET status = ?
+        WHERE id = ?
+    """, (status, assignment_id))
+
+    connection.commit()
+    connection.close()
+
+    return redirect(url_for("assignments"))
+
 if __name__ == "__main__":
     app.run(debug=True)

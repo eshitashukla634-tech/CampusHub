@@ -1245,3 +1245,49 @@ footer {
 .form-card input[type="date"] {
     color-scheme: dark;
 }
+
+
+.pending-status {
+    background: #92400e;
+    color: #fef3c7;
+}
+
+.completed-status {
+    background: #166534;
+    color: #dcfce7;
+}
+
+.assignment-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.complete-btn,
+.pending-btn {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 8px;
+
+    color: white;
+    text-decoration: none;
+
+    font-size: 13px;
+    font-weight: bold;
+
+    transition: 0.3s;
+}
+
+.complete-btn {
+    background: #16a34a;
+}
+
+.pending-btn {
+    background: #92400e;
+}
+
+.complete-btn:hover,
+.pending-btn:hover {
+    transform: translateY(-2px);
+}
