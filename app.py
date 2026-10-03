@@ -163,13 +163,35 @@ def attendance():
 
     students = cursor.fetchall()
 
+    cursor.execute("SELECT COUNT(*) FROM students")
+    total_students = cursor.fetchone()[0]
+
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM attendance
+        WHERE date = date('now')
+        AND status = 'Present'
+    """)
+    present_count = cursor.fetchone()[0]
+
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM attendance
+        WHERE date = date('now')
+        AND status = 'Absent'
+    """)
+    absent_count = cursor.fetchone()[0]
+
     connection.close()
 
     return render_template(
         "attendance.html",
-        students=students
+        students=students,
+        total_students=total_students,
+        present_count=present_count,
+        absent_count=absent_count
     )
-
+  
 
 @app.route("/mark-attendance/<int:student_id>/<status>")
 def mark_attendance(student_id, status):
