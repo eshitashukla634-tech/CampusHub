@@ -38,6 +38,27 @@ CREATE TABLE IF NOT EXISTS assignments (
 )
 """)
 
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'student'
+)
+""")
+
+cursor.execute("""
+INSERT OR IGNORE INTO users (name, email, password, role)
+VALUES (?, ?, ?, ?)
+""", (
+    "Eshita",
+    "eshita@campushub.com",
+    "123456",
+    "admin"
+))
+
+
 
 connection.commit()
 

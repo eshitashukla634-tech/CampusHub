@@ -1,17 +1,57 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for,session
 import sqlite3
 
 app = Flask(__name__)
+
+app.secret_key = "campushub-development-key"
 
 
 @app.route("/")
 def home():
     return render_template("index.html")
 
-
-@app.route("/login")
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    return render_template("login.html")
+
+    error = None
+
+    if request.method == "POST":
+
+        email = request.form["email"]
+        password = request.form["password"]
+
+        connection = sqlite3.connect("campushub.db")
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            SELECT id, name, email, role
+            FROM users
+            WHERE email = ? AND password = ?
+        """, (email, password))
+
+        user = cursor.fetchone()
+
+        connection.close()
+
+        if user:
+
+            session["user_id"] = user[0]
+            session["user_name"] = user[1]
+            session["user_role"] = user[3]
+
+            return redirect(url_for("dashboard"))
+
+        else:
+
+            error = "Invalid email or password."
+
+    return render_template(
+        "login.html",
+        error=error
+    )
+
+
+
 
 @app.route("/dashboard")
 def dashboard():
