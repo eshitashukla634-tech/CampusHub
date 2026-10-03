@@ -237,5 +237,37 @@ def assignments():
     ) 
 
 
+@app.route("/add-assignment", methods=["GET", "POST"])
+def add_assignment():
+
+    if request.method == "POST":
+
+        title = request.form["title"]
+        subject = request.form["subject"]
+        description = request.form["description"]
+        due_date = request.form["due_date"]
+
+        connection = sqlite3.connect("campushub.db")
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            INSERT INTO assignments
+            (title, subject, description, due_date, status)
+            VALUES (?, ?, ?, ?, ?)
+        """, (
+            title,
+            subject,
+            description,
+            due_date,
+            "Pending"
+        ))
+
+        connection.commit()
+        connection.close()
+
+        return redirect(url_for("assignments"))
+
+    return render_template("add_assignment.html")
+
 if __name__ == "__main__":
     app.run(debug=True)
