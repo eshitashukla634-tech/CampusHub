@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Assignment | CampusHub</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    <nav class="navbar">
+
+        <div class="logo">
+            🚀 CampusHub
+        </div>
+
+        <div class="nav-links">
+
+            <a href="{{ url_for('dashboard') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('assignments') }}">
+                Assignments
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <main class="add-student-page">
+
+        <div class="form-card">
+
+            <p class="tagline">
+                ASSIGNMENT MANAGEMENT
+            </p>
+
+            <h1>Edit Assignment ✏️</h1>
+
+            <p class="form-subtitle">
+                Update the assignment information.
+            </p>
+
+
+            <form method="POST">
+
+                <label for="title">
+                    Assignment Title
+                </label>
+
+                <input
+                    type="text"
+                    id="title"
+                    name="title"
+                    value="{{ assignment[1] }}"
+                    required
+                >
+
+
+                <label for="subject">
+                    Subject
+                </label>
+
+                <input
+                    type="text"
+                    id="subject"
+                    name="subject"
+                    value="{{ assignment[2] }}"
+                    required
+                >
+
+
+                <label for="description">
+                    Description
+                </label>
+
+                <textarea
+                    id="description"
+                    name="description"
+                    rows="5">{{ assignment[3] }}</textarea>
+
+
+                <label for="due_date">
+                    Due Date
+                </label>
+
+                <input
+                    type="date"
+                    id="due_date"
+                    name="due_date"
+                    value="{{ assignment[4] }}"
+                    required
+                >
+
+
+                <button
+                    type="submit"
+                    class="form-submit-btn">
+
+                    Save Changes →
+
+                </button>
+
+            </form>
+
+
+            <a href="{{ url_for('assignments') }}"
+               class="back-link">
+
+                ← Back to Assignments
+
+            </a>
+
+        </div>
+
+    </main>
+
+</body>
+
+</html>

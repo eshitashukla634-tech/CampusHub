@@ -269,5 +269,56 @@ def add_assignment():
 
     return render_template("add_assignment.html")
 
+
+@app.route("/edit-assignment/<int:assignment_id>", methods=["GET", "POST"])
+def edit_assignment(assignment_id):
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    if request.method == "POST":
+
+        title = request.form["title"]
+        subject = request.form["subject"]
+        description = request.form["description"]
+        due_date = request.form["due_date"]
+
+        cursor.execute("""
+            UPDATE assignments
+            SET title = ?,
+                subject = ?,
+                description = ?,
+                due_date = ?
+            WHERE id = ?
+        """, (
+            title,
+            subject,
+            description,
+            due_date,
+            assignment_id
+        ))
+
+        connection.commit()
+        connection.close()
+
+        return redirect(url_for("assignments"))
+
+    cursor.execute(
+        "SELECT * FROM assignments WHERE id = ?",
+        (assignment_id,)
+    )
+
+    assignment = cursor.fetchone()
+
+    connection.close()
+
+    if assignment is None:
+        return "Assignment not found", 404
+
+    return render_template(
+        "edit_assignment.html",
+        assignment=assignment
+    )
+
 if __name__ == "__main__":
     app.run(debug=True)
