@@ -15,7 +15,52 @@ def login():
 
 @app.route("/dashboard")
 def dashboard():
-    return render_template("dashboard.html")
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    # Total students
+    cursor.execute("SELECT COUNT(*) FROM students")
+    total_students = cursor.fetchone()[0]
+
+    # Today's present students
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM attendance
+        WHERE date = date('now')
+        AND status = 'Present'
+    """)
+    present_today = cursor.fetchone()[0]
+
+    # Attendance percentage
+    if total_students > 0:
+        attendance_percentage = round(
+            (present_today / total_students) * 100
+        )
+    else:
+        attendance_percentage = 0
+
+    # Total assignments
+    cursor.execute("SELECT COUNT(*) FROM assignments")
+    total_assignments = cursor.fetchone()[0]
+
+    # Pending assignments
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM assignments
+        WHERE status = 'Pending'
+    """)
+    pending_assignments = cursor.fetchone()[0]
+
+    connection.close()
+
+    return render_template(
+        "dashboard.html",
+        total_students=total_students,
+        attendance_percentage=attendance_percentage,
+        total_assignments=total_assignments,
+        pending_assignments=pending_assignments
+    )
 
 @app.route("/students")
 def students():

@@ -17,7 +17,9 @@
 
 <body>
 
-    <!-- Dashboard Navigation -->
+    <!-- ========================= -->
+    <!-- NAVIGATION -->
+    <!-- ========================= -->
 
     <nav class="navbar">
 
@@ -44,9 +46,14 @@
     </nav>
 
 
-    <!-- Dashboard -->
+    <!-- ========================= -->
+    <!-- DASHBOARD -->
+    <!-- ========================= -->
 
     <main class="dashboard">
+
+
+        <!-- Dashboard Header -->
 
         <div class="dashboard-header">
 
@@ -69,10 +76,116 @@
         </div>
 
 
-        <!-- Dashboard Cards -->
+        <!-- ========================= -->
+        <!-- LIVE STATISTICS -->
+        <!-- ========================= -->
+
+        <div class="dashboard-stats">
+
+
+            <!-- Total Students -->
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    👨‍🎓
+                </div>
+
+                <div>
+
+                    <h3>
+                        Total Students
+                    </h3>
+
+                    <h2>
+                        {{ total_students }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <!-- Attendance -->
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    📊
+                </div>
+
+                <div>
+
+                    <h3>
+                        Attendance
+                    </h3>
+
+                    <h2>
+                        {{ attendance_percentage }}%
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <!-- Total Assignments -->
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    📝
+                </div>
+
+                <div>
+
+                    <h3>
+                        Assignments
+                    </h3>
+
+                    <h2>
+                        {{ total_assignments }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <!-- Pending Assignments -->
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    ⏳
+                </div>
+
+                <div>
+
+                    <h3>
+                        Pending
+                    </h3>
+
+                    <h2>
+                        {{ pending_assignments }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- ========================= -->
+        <!-- DASHBOARD MODULES -->
+        <!-- ========================= -->
 
         <div class="dashboard-grid">
 
+
+            <!-- Students -->
 
             <div class="dashboard-card">
 
@@ -88,12 +201,14 @@
                     Manage student records and profiles.
                 </p>
 
-                <a href="#">
+                <a href="{{ url_for('students') }}">
                     Open →
                 </a>
 
             </div>
 
+
+            <!-- Attendance -->
 
             <div class="dashboard-card">
 
@@ -109,12 +224,14 @@
                     Track attendance and participation.
                 </p>
 
-                <a href="{{ url_for('analytics') }}">
+                <a href="{{ url_for('attendance') }}">
                     Open →
                 </a>
 
             </div>
 
+
+            <!-- Assignments -->
 
             <div class="dashboard-card">
 
@@ -137,6 +254,8 @@
             </div>
 
 
+            <!-- Analytics -->
+
             <div class="dashboard-card">
 
                 <div class="dashboard-icon">
@@ -151,8 +270,8 @@
                     View academic and attendance insights.
                 </p>
 
-                <a href="{{ url_for('students') }}">
-                     Open →
+                <a href="{{ url_for('analytics') }}">
+                    Open →
                 </a>
 
             </div>
@@ -160,7 +279,9 @@
 
         </div>
 
+
     </main>
+
 
 </body>
 
