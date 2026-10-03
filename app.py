@@ -219,13 +219,26 @@ def mark_attendance(student_id, status):
 @app.route("/assignments")
 def assignments():
 
+    search = request.args.get("search", "")
+
     connection = sqlite3.connect("campushub.db")
     cursor = connection.cursor()
 
-    cursor.execute("""
-        SELECT * FROM assignments
-        ORDER BY due_date
-    """)
+    if search:
+
+        cursor.execute("""
+            SELECT * FROM assignments
+            WHERE title LIKE ?
+            OR subject LIKE ?
+            ORDER BY due_date
+        """, (f"%{search}%", f"%{search}%"))
+
+    else:
+
+        cursor.execute("""
+            SELECT * FROM assignments
+            ORDER BY due_date
+        """)
 
     assignments = cursor.fetchall()
 
@@ -233,9 +246,9 @@ def assignments():
 
     return render_template(
         "assignments.html",
-        assignments=assignments
-    ) 
-
+        assignments=assignments,
+        search=search
+    )
 
 @app.route("/add-assignment", methods=["GET", "POST"])
 def add_assignment():

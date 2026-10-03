@@ -1291,3 +1291,48 @@ footer {
 .pending-btn:hover {
     transform: translateY(-2px);
 }
+
+
+
+.assignment-search-form {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+
+.assignment-search-form input {
+    width: 300px;
+    padding: 13px 16px;
+
+    border: 1px solid #475569;
+    border-radius: 12px;
+
+    background: #0f172a;
+    color: white;
+
+    outline: none;
+    font-size: 15px;
+}
+
+.assignment-search-form input:focus {
+    border-color: #60a5fa;
+}
+
+.assignment-search-form button {
+    padding: 13px 20px;
+
+    border: none;
+    border-radius: 12px;
+
+    background: linear-gradient(
+        90deg,
+        #2563eb,
+        #9333ea
+    );
+
+    color: white;
+    font-weight: bold;
+
+    cursor: pointer;
+}
