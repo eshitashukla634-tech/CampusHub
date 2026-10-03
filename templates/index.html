@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>CampusHub</title>
+
+    <!-- Connect CSS -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+
+<body>
+
+    <!-- =========================
+         NAVIGATION BAR
+    ========================== -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+
+    <svg class="logo-icon"
+         viewBox="0 0 100 100"
+         xmlns="http://www.w3.org/2000/svg">
+
+        <!-- Campus building -->
+        <path
+            d="M20 45 L50 25 L80 45"
+            fill="none"
+            stroke="url(#logoGradient)"
+            stroke-width="7"
+            stroke-linecap="round"
+            stroke-linejoin="round"/>
+
+        <path
+            d="M28 45 V72 H72 V45"
+            fill="none"
+            stroke="url(#logoGradient)"
+            stroke-width="7"
+            stroke-linejoin="round"/>
+
+        <!-- Door -->
+        <path
+            d="M45 72 V55 H55 V72"
+            fill="none"
+            stroke="url(#logoGradient)"
+            stroke-width="6"/>
+
+        <!-- Graduation cap -->
+        <path
+            d="M22 28 L50 15 L78 28 L50 41 Z"
+            fill="url(#logoGradient)"/>
+
+        <path
+            d="M72 30 V48"
+            stroke="url(#logoGradient)"
+            stroke-width="5"
+            stroke-linecap="round"/>
+
+        <circle
+            cx="72"
+            cy="51"
+            r="4"
+            fill="#9333ea"/>
+
+        <!-- Gradient -->
+        <defs>
+            <linearGradient
+                id="logoGradient"
+                x1="0%"
+                y1="0%"
+                x2="100%"
+                y2="100%">
+
+                <stop offset="0%"
+                      stop-color="#2563eb"/>
+
+                <stop offset="100%"
+                      stop-color="#9333ea"/>
+
+            </linearGradient>
+        </defs>
+
+    </svg>
+
+
+    <span class="logo-text">
+        Campus<span>Hub</span>
+    </span>
+
+</div>
+
+        <div class="nav-links">
+
+            <a href="#">Home</a>
+
+            <a href="#features">Features</a>
+
+            <a href="#">About</a>
+
+            <a href="{{ url_for('login') }}">Login</a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================
+         HERO SECTION
+    ========================== -->
+
+    <section class="hero">
+
+        <div class="hero-content">
+
+            <p class="tagline">
+                SMART CAMPUS MANAGEMENT
+            </p>
+
+            <h1>
+                Your Campus.<br>
+                <span>One Smart Hub.</span> 🚀
+            </h1>
+
+            <p class="description">
+                CampusHub brings students, teachers and administrators
+                together in one simple platform.
+            </p>
+            
+            <a href="{{ url_for('login') }}" class="start-btn">
+                Get Started →
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         FEATURES SECTION
+    ========================== -->
+
+    <section class="features" id="features">
+
+        <h2>
+            Everything Your Campus Needs
+        </h2>
+
+        <p class="section-text">
+            Manage your campus activities from one smart platform.
+        </p>
+
+
+        <div class="feature-container">
+
+
+            <!-- Student Management -->
+
+            <a href="{{ url_for('students') }}" class="feature-card">
+
+    <div class="icon">
+        👨‍🎓
+    </div>
+
+    <h3>
+        Student Management
+    </h3>
+
+    <p>
+        Manage student profiles, courses
+        and academic information.
+    </p>
+
+</a>
+
+            <!-- Attendance -->
+
+            <div class="feature-card">
+
+                <div class="icon">
+                    📅
+                </div>
+
+                <h3>
+                    Attendance
+                </h3>
+
+                <p>
+                    Track attendance and monitor student
+                    participation.
+                </p>
+
+            </div>
+
+
+            <!-- Assignments -->
+
+            <div class="feature-card">
+
+                <div class="icon">
+                    📝
+                </div>
+
+                <h3>
+                    Assignments
+                </h3>
+
+                <p>
+                    Manage assignments, deadlines and
+                    submissions.
+                </p>
+
+            </div>
+
+
+            <!-- Analytics -->
+
+            <div class="feature-card">
+
+                <div class="icon">
+                    📊
+                </div>
+
+                <h3>
+                    Analytics
+                </h3>
+
+                <p>
+                    View useful academic and attendance
+                    insights.
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer>
+
+        <div class="footer-content">
+
+            <div class="footer-logo">
+                🚀 CampusHub
+            </div>
+
+            <p>
+                Making campus management smarter and simpler.
+            </p>
+
+            <div class="footer-links">
+
+                <a href="#">
+                    Privacy
+                </a>
+
+                <a href="#">
+                    Terms
+                </a>
+
+                <a href="#">
+                    Contact
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <p>
+                © 2026 CampusHub. All rights reserved.
+            </p>
+
+        </div>
+
+    </footer>
+
+
+</body>
+
+</html>

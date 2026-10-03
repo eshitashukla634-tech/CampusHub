@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Attendance | CampusHub</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+
+<body>
+
+    <!-- Navigation -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            🚀 CampusHub
+        </div>
+
+        <div class="nav-links">
+
+            <a href="{{ url_for('home') }}">
+                Home
+            </a>
+
+            <a href="{{ url_for('dashboard') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('students') }}">
+                Students
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- Attendance Page -->
+
+    <main class="attendance-page">
+
+        <div class="page-header">
+
+            <div>
+
+                <p class="tagline">
+                    ATTENDANCE MANAGEMENT
+                </p>
+
+                <h1>
+                    Today's Attendance 📅
+                </h1>
+
+                <p>
+                    Mark and manage student attendance.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Attendance Card -->
+
+        <div class="attendance-card">
+
+            <div class="attendance-card-header">
+
+                <div>
+
+                    <h2>
+                        Student Attendance
+                    </h2>
+
+                    <p>
+                        Mark students as Present or Absent.
+                    </p>
+
+                </div>
+
+                <div class="attendance-date">
+
+                    📅 Today
+
+                </div>
+
+            </div>
+
+
+            <!-- Student Table -->
+
+            <div class="student-table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>ID</th>
+                            <th>Student Name</th>
+                            <th>Student ID</th>
+                            <th>Department</th>
+                            <th>Attendance</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for student in students %}
+
+                        <tr>
+
+                            <td>
+                                {{ student[0] }}
+                            </td>
+
+                            <td>
+                                {{ student[1] }}
+                            </td>
+
+                            <td>
+                                {{ student[2] }}
+                            </td>
+
+                            <td>
+                                {{ student[3] }}
+                            </td>
+<td>
+
+    {% if student[4] == "Present" %}
+
+        <span class="attendance-status present-status">
+            ✓ Present
+        </span>
+
+    {% elif student[4] == "Absent" %}
+
+        <span class="attendance-status absent-status">
+            ✕ Absent
+        </span>
+
+    {% else %}
+
+        <span class="attendance-status">
+            Not Marked
+        </span>
+
+    {% endif %}
+
+    <br><br>
+
+    <a
+        href="{{ url_for('mark_attendance', student_id=student[0], status='Present') }}"
+        class="attendance-present">
+
+        Present
+
+    </a>
+
+    <a
+        href="{{ url_for('mark_attendance', student_id=student[0], status='Absent') }}"
+        class="attendance-absent">
+
+        Absent
+
+    </a>
+
+</td>
+
+                        </tr>
+
+                        {% endfor %}
+
+
+                        {% if not students %}
+
+                        <tr>
+
+                            <td colspan="5"
+                                style="text-align:center; padding:30px;">
+
+                                No students found.
+
+                            </td>
+
+                        </tr>
+
+                        {% endif %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</body>
+
+</html>
