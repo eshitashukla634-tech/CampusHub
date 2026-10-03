@@ -320,5 +320,22 @@ def edit_assignment(assignment_id):
         assignment=assignment
     )
 
+
+@app.route("/delete-assignment/<int:assignment_id>")
+def delete_assignment(assignment_id):
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    cursor.execute(
+        "DELETE FROM assignments WHERE id = ?",
+        (assignment_id,)
+    )
+
+    connection.commit()
+    connection.close()
+
+    return redirect(url_for("assignments"))
+
 if __name__ == "__main__":
     app.run(debug=True)
