@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Assignments | CampusHub</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+
+<body>
+
+    <!-- Navigation -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            🚀 CampusHub
+        </div>
+
+        <div class="nav-links">
+
+            <a href="{{ url_for('home') }}">
+                Home
+            </a>
+
+            <a href="{{ url_for('dashboard') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('students') }}">
+                Students
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- Assignments Page -->
+
+    <main class="assignments-page">
+
+        <div class="page-header">
+
+            <div>
+
+                <p class="tagline">
+                    ASSIGNMENT MANAGEMENT
+                </p>
+
+                <h1>
+                    Assignments 📝
+                </h1>
+
+                <p>
+                    Manage assignments, subjects and deadlines.
+                </p>
+
+            </div>
+
+
+            <a href="#"
+               class="start-btn">
+
+                + Add Assignment
+
+            </a>
+
+        </div>
+
+
+        <!-- Assignment Cards -->
+
+        <div class="assignment-grid">
+
+            {% for assignment in assignments %}
+
+            <div class="assignment-card">
+
+                <div class="assignment-top">
+
+                    <span class="assignment-subject">
+                        {{ assignment[2] }}
+                    </span>
+
+                    <span class="assignment-status">
+                        {{ assignment[5] }}
+                    </span>
+
+                </div>
+
+
+                <h2>
+                    {{ assignment[1] }}
+                </h2>
+
+
+                <p>
+                    {{ assignment[3] }}
+                </p>
+
+
+                <div class="assignment-bottom">
+
+                    <span>
+                        📅 Due: {{ assignment[4] }}
+                    </span>
+
+                    <div>
+
+                        <button class="table-btn"
+                                type="button">
+
+                            Edit
+
+                        </button>
+
+                        <button class="delete-btn"
+                                type="button">
+
+                            Delete
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+
+            {% if not assignments %}
+
+            <div class="no-assignments">
+
+                <div>
+                    📝
+                </div>
+
+                <h2>
+                    No assignments yet
+                </h2>
+
+                <p>
+                    Add your first assignment to get started.
+                </p>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </main>
+
+</body>
+
+</html>

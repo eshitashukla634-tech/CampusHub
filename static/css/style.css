@@ -1068,3 +1068,150 @@ footer {
     }
 
 }
+
+
+
+
+.assignments-page {
+    min-height: calc(100vh - 75px);
+    padding: 70px 8%;
+
+    background:
+        radial-gradient(
+            circle at top left,
+            #9333ea22,
+            transparent 35%
+        ),
+        #0f172a;
+}
+
+.assignments-page .page-header {
+    margin-bottom: 45px;
+}
+
+.assignments-page .page-header h1 {
+    font-size: 45px;
+    margin: 10px 0;
+}
+
+.assignments-page .page-header p:not(.tagline) {
+    color: #94a3b8;
+    font-size: 18px;
+}
+
+.assignment-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+}
+
+.assignment-card {
+    padding: 28px;
+
+    background: #1e293b;
+
+    border: 1px solid #334155;
+    border-radius: 20px;
+
+    transition: 0.3s;
+}
+
+.assignment-card:hover {
+    transform: translateY(-6px);
+
+    border-color: #60a5fa;
+
+    box-shadow: 0 15px 40px #00000033;
+}
+
+.assignment-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 20px;
+}
+
+.assignment-subject {
+    color: #60a5fa;
+    font-weight: bold;
+}
+
+.assignment-status {
+    padding: 6px 12px;
+
+    border-radius: 20px;
+
+    background: #475569;
+
+    color: white;
+
+    font-size: 13px;
+}
+
+.assignment-card h2 {
+    font-size: 24px;
+    margin-bottom: 12px;
+}
+
+.assignment-card > p {
+    color: #94a3b8;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.assignment-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    color: #cbd5e1;
+
+    font-size: 14px;
+}
+
+.assignment-bottom .table-btn,
+.assignment-bottom .delete-btn {
+    margin-left: 8px;
+}
+
+.no-assignments {
+    grid-column: 1 / -1;
+
+    text-align: center;
+
+    padding: 70px 30px;
+
+    background: #1e293b;
+
+    border: 1px solid #334155;
+
+    border-radius: 20px;
+}
+
+.no-assignments > div {
+    font-size: 55px;
+    margin-bottom: 15px;
+}
+
+.no-assignments h2 {
+    margin-bottom: 10px;
+}
+
+.no-assignments p {
+    color: #94a3b8;
+}
+
+@media (max-width: 800px) {
+
+    .assignment-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .assignment-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+}

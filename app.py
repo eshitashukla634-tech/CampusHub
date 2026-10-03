@@ -216,5 +216,26 @@ def mark_attendance(student_id, status):
     return redirect(url_for("attendance"))
 
 
+@app.route("/assignments")
+def assignments():
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT * FROM assignments
+        ORDER BY due_date
+    """)
+
+    assignments = cursor.fetchall()
+
+    connection.close()
+
+    return render_template(
+        "assignments.html",
+        assignments=assignments
+    ) 
+
+
 if __name__ == "__main__":
     app.run(debug=True)

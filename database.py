@@ -25,6 +25,20 @@ CREATE TABLE IF NOT EXISTS attendance (
     FOREIGN KEY(student_id) REFERENCES students(id)
 )
 """)
+
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS assignments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    subject TEXT NOT NULL,
+    description TEXT,
+    due_date TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'Pending'
+)
+""")
+
+
 connection.commit()
 
 connection.close()
