@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Analytics | CampusHub</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+
+<body>
+
+    <nav class="navbar">
+
+        <div class="logo">
+            🚀 CampusHub
+        </div>
+
+        <div class="nav-links">
+
+            <a href="{{ url_for('home') }}">
+                Home
+            </a>
+
+            <a href="{{ url_for('dashboard') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('students') }}">
+                Students
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <main class="analytics-page">
+
+        <div class="analytics-header">
+
+            <p class="tagline">
+                CAMPUSHUB ANALYTICS
+            </p>
+
+            <h1>
+                Campus Overview 📊
+            </h1>
+
+            <p>
+                View important student, attendance and assignment statistics.
+            </p>
+
+        </div>
+
+
+        <!-- Statistics -->
+
+        <div class="analytics-grid">
+
+
+            <div class="analytics-card">
+
+                <div class="analytics-icon">
+                    👨‍🎓
+                </div>
+
+                <p>
+                    Total Students
+                </p>
+
+                <h2>
+                    {{ total_students }}
+                </h2>
+
+            </div>
+
+
+            <div class="analytics-card">
+
+                <div class="analytics-icon">
+                    ✅
+                </div>
+
+                <p>
+                    Present Today
+                </p>
+
+                <h2>
+                    {{ present_today }}
+                </h2>
+
+            </div>
+
+
+            <div class="analytics-card">
+
+                <div class="analytics-icon">
+                    ❌
+                </div>
+
+                <p>
+                    Absent Today
+                </p>
+
+                <h2>
+                    {{ absent_today }}
+                </h2>
+
+            </div>
+
+
+            <div class="analytics-card">
+
+                <div class="analytics-icon">
+                    📝
+                </div>
+
+                <p>
+                    Total Assignments
+                </p>
+
+                <h2>
+                    {{ total_assignments }}
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <!-- Assignment Overview -->
+
+        <div class="analytics-section">
+
+            <h2>
+                Assignment Overview
+            </h2>
+
+            <div class="analytics-progress">
+
+                <div class="progress-item">
+
+                    <span>
+                        Completed
+                    </span>
+
+                    <strong>
+                        {{ completed_assignments }}
+                    </strong>
+
+                </div>
+
+
+                <div class="progress-item">
+
+                    <span>
+                        Pending
+                    </span>
+
+                    <strong>
+                        {{ pending_assignments }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Attendance Overview -->
+
+        <div class="analytics-section">
+
+            <h2>
+                Today's Attendance
+            </h2>
+
+            <div class="attendance-overview">
+
+                <div>
+
+                    <span>
+                        Present
+                    </span>
+
+                    <strong>
+                        {{ present_today }}
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Absent
+                    </span>
+
+                    <strong>
+                        {{ absent_today }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</body>
+
+</html>

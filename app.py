@@ -371,5 +371,66 @@ def update_assignment_status(assignment_id, status):
 
     return redirect(url_for("assignments"))
 
+
+@app.route("/analytics")
+def analytics():
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    # Total students
+    cursor.execute("SELECT COUNT(*) FROM students")
+    total_students = cursor.fetchone()[0]
+
+    # Today's present students
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM attendance
+        WHERE date = date('now')
+        AND status = 'Present'
+    """)
+    present_today = cursor.fetchone()[0]
+
+    # Today's absent students
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM attendance
+        WHERE date = date('now')
+        AND status = 'Absent'
+    """)
+    absent_today = cursor.fetchone()[0]
+
+    # Total assignments
+    cursor.execute("SELECT COUNT(*) FROM assignments")
+    total_assignments = cursor.fetchone()[0]
+
+    # Completed assignments
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM assignments
+        WHERE status = 'Completed'
+    """)
+    completed_assignments = cursor.fetchone()[0]
+
+    # Pending assignments
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM assignments
+        WHERE status = 'Pending'
+    """)
+    pending_assignments = cursor.fetchone()[0]
+
+    connection.close()
+
+    return render_template(
+        "analytics.html",
+        total_students=total_students,
+        present_today=present_today,
+        absent_today=absent_today,
+        total_assignments=total_assignments,
+        completed_assignments=completed_assignments,
+        pending_assignments=pending_assignments
+    )
+
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1336,3 +1336,157 @@ footer {
 
     cursor: pointer;
 }
+
+
+.analytics-page {
+    min-height: calc(100vh - 75px);
+
+    padding: 70px 8%;
+
+    background:
+        radial-gradient(
+            circle at top left,
+            #2563eb22,
+            transparent 35%
+        ),
+        #0f172a;
+}
+
+.analytics-header {
+    margin-bottom: 45px;
+}
+
+.analytics-header h1 {
+    font-size: 45px;
+    margin: 10px 0;
+}
+
+.analytics-header p:not(.tagline) {
+    color: #94a3b8;
+    font-size: 18px;
+}
+
+.analytics-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 20px;
+
+    margin-bottom: 35px;
+}
+
+.analytics-card {
+    padding: 28px;
+
+    background: #1e293b;
+
+    border: 1px solid #334155;
+
+    border-radius: 20px;
+
+    transition: 0.3s;
+}
+
+.analytics-card:hover {
+    transform: translateY(-6px);
+
+    border-color: #60a5fa;
+
+    box-shadow:
+        0 15px 40px #00000033;
+}
+
+.analytics-icon {
+    font-size: 38px;
+
+    margin-bottom: 15px;
+}
+
+.analytics-card p {
+    color: #94a3b8;
+
+    margin-bottom: 8px;
+}
+
+.analytics-card h2 {
+    font-size: 35px;
+}
+
+.analytics-section {
+    padding: 30px;
+
+    margin-bottom: 25px;
+
+    background: #1e293b;
+
+    border: 1px solid #334155;
+
+    border-radius: 20px;
+}
+
+.analytics-section h2 {
+    margin-bottom: 25px;
+}
+
+.analytics-progress,
+.attendance-overview {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 20px;
+}
+
+.progress-item,
+.attendance-overview > div {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 18px;
+
+    background: #0f172a;
+
+    border-radius: 12px;
+}
+
+.progress-item span,
+.attendance-overview span {
+    color: #cbd5e1;
+}
+
+.progress-item strong,
+.attendance-overview strong {
+    font-size: 24px;
+}
+
+@media (max-width: 1000px) {
+
+    .analytics-grid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .analytics-page {
+        padding: 50px 5%;
+    }
+
+    .analytics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .analytics-progress,
+    .attendance-overview {
+        grid-template-columns: 1fr;
+    }
+
+}
