@@ -440,6 +440,40 @@ def assignments():
             WHERE title LIKE ?
             OR subject LIKE ?
             ORDER BY due_date
+        """, (
+            f"%{search}%",
+            f"%{search}%"
+        ))
+
+    else:
+
+        cursor.execute("""
+            SELECT * FROM assignments
+            ORDER BY due_date
+        """)
+
+    assignments = cursor.fetchall()
+
+    connection.close()
+
+    return render_template(
+        "assignments.html",
+        assignments=assignments,
+        search=search
+    )
+
+    search = request.args.get("search", "")
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    if search:
+
+        cursor.execute("""
+            SELECT * FROM assignments
+            WHERE title LIKE ?
+            OR subject LIKE ?
+            ORDER BY due_date
         """, (f"%{search}%", f"%{search}%"))
 
     else:
