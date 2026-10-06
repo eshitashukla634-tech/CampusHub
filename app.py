@@ -1,9 +1,22 @@
 from flask import Flask, render_template, request, redirect, url_for,session
+from functools import wraps
 import sqlite3
 
 app = Flask(__name__)
 
 app.secret_key = "campushub-development-key"
+
+def login_required(function):
+
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+
+        if "user_id" not in session:
+            return redirect(url_for("login"))
+
+        return function(*args, **kwargs)
+
+    return wrapper
 
 
 @app.route("/")
@@ -52,9 +65,13 @@ def login():
 
 
 
-
 @app.route("/dashboard")
 def dashboard():
+
+
+    if "user_id" not in session:
+       return redirect(url_for("login"))
+
 
     connection = sqlite3.connect("campushub.db")
     cursor = connection.cursor()
@@ -103,6 +120,7 @@ def dashboard():
     )
 
 @app.route("/students")
+@login_required
 def students():
 
     search = request.args.get("search", "")
@@ -135,6 +153,7 @@ def students():
 
 
 @app.route("/add-student", methods=["GET", "POST"])
+@login_required
 def add_student():
 
     if request.method == "POST":
@@ -172,6 +191,7 @@ def add_student():
 
 
 @app.route("/delete-student/<int:student_id>")
+@login_required
 def delete_student(student_id):
 
     connection = sqlite3.connect("campushub.db")
@@ -189,6 +209,7 @@ def delete_student(student_id):
 
 
 @app.route("/edit-student/<int:student_id>", methods=["GET", "POST"])
+@login_required
 def edit_student(student_id):
 
     connection = sqlite3.connect("campushub.db")
@@ -228,6 +249,7 @@ def edit_student(student_id):
 
 
 @app.route("/attendance")
+@login_required
 def attendance():
 
     connection = sqlite3.connect("campushub.db")
@@ -279,6 +301,7 @@ def attendance():
   
 
 @app.route("/mark-attendance/<int:student_id>/<status>")
+@login_required
 def mark_attendance(student_id, status):
 
     if status not in ["Present", "Absent"]:
@@ -302,6 +325,7 @@ def mark_attendance(student_id, status):
 
 
 @app.route("/assignments")
+@login_required
 def assignments():
 
     search = request.args.get("search", "")
@@ -336,6 +360,7 @@ def assignments():
     )
 
 @app.route("/add-assignment", methods=["GET", "POST"])
+@login_required
 def add_assignment():
 
     if request.method == "POST":
@@ -369,6 +394,7 @@ def add_assignment():
 
 
 @app.route("/edit-assignment/<int:assignment_id>", methods=["GET", "POST"])
+@login_required
 def edit_assignment(assignment_id):
 
     connection = sqlite3.connect("campushub.db")
@@ -420,6 +446,7 @@ def edit_assignment(assignment_id):
 
 
 @app.route("/delete-assignment/<int:assignment_id>")
+@login_required
 def delete_assignment(assignment_id):
 
     connection = sqlite3.connect("campushub.db")
@@ -437,6 +464,7 @@ def delete_assignment(assignment_id):
 
 
 @app.route("/update-assignment-status/<int:assignment_id>/<status>")
+@login_required
 def update_assignment_status(assignment_id, status):
 
     if status not in ["Pending", "Completed"]:
@@ -458,6 +486,7 @@ def update_assignment_status(assignment_id, status):
 
 
 @app.route("/analytics")
+@login_required
 def analytics():
 
     connection = sqlite3.connect("campushub.db")
@@ -516,6 +545,16 @@ def analytics():
         completed_assignments=completed_assignments,
         pending_assignments=pending_assignments
     )
+
+
+@app.route("/logout")
+def logout():
+
+    session.clear()
+
+    return redirect(url_for("login"))
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
