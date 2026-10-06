@@ -119,6 +119,34 @@ def dashboard():
         pending_assignments=pending_assignments
     )
 
+@app.route("/profile")
+@login_required
+def profile():
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT id, name, email, role
+        FROM users
+        WHERE id = ?
+    """, (session["user_id"],))
+
+    user = cursor.fetchone()
+
+    connection.close()
+
+    if user is None:
+        session.clear()
+        return redirect(url_for("login"))
+
+    return render_template(
+        "profile.html",
+        user=user
+    )
+
+
+
 @app.route("/students")
 @login_required
 def students():

@@ -33,7 +33,7 @@
                 Home
             </a>
 
-            <a href="#">
+            <a href="{{ url_for('profile') }}">
                 Profile
             </a>
 
@@ -64,8 +64,11 @@
                 </p>
 
                 <h1>
-                    Welcome back 👋
+                    Welcome back, {{ session['user_name'] }} 👋
                 </h1>
+                <p class="user-role">
+                    {{ session['user_role'] | title }} Account
+                </p>
 
                 <p>
                     Manage your campus activities from one place.

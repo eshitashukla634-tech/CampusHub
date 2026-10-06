@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Profile | CampusHub</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    <nav class="navbar">
+
+        <div class="logo">
+            🚀 CampusHub
+        </div>
+
+        <div class="nav-links">
+
+            <a href="{{ url_for('home') }}">
+                Home
+            </a>
+
+            <a href="{{ url_for('dashboard') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('logout') }}">
+                Logout
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <main class="profile-page">
+
+        <div class="profile-card">
+
+            <div class="profile-avatar">
+                👤
+            </div>
+
+            <p class="tagline">
+                USER PROFILE
+            </p>
+
+            <h1>
+                {{ user[1] }}
+            </h1>
+
+            <p class="profile-role">
+                {{ user[3] | title }} Account
+            </p>
+
+
+            <div class="profile-details">
+
+                <div class="profile-item">
+
+                    <span>
+                        🆔 User ID
+                    </span>
+
+                    <strong>
+                        {{ user[0] }}
+                    </strong>
+
+                </div>
+
+
+                <div class="profile-item">
+
+                    <span>
+                        📧 Email
+                    </span>
+
+                    <strong>
+                        {{ user[2] }}
+                    </strong>
+
+                </div>
+
+
+                <div class="profile-item">
+
+                    <span>
+                        🛡️ Role
+                    </span>
+
+                    <strong>
+                        {{ user[3] | title }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <a href="{{ url_for('dashboard') }}"
+               class="start-btn">
+                ← Back to Dashboard
+            </a>
+
+        </div>
+
+    </main>
+
+</body>
+
+</html>
