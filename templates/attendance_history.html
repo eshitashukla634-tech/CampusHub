@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Attendance History | CampusHub</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            🚀 CampusHub
+        </div>
+
+        <div class="nav-links">
+
+            <a href="{{ url_for('home') }}">
+                Home
+            </a>
+
+            <a href="{{ url_for('dashboard') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('attendance') }}">
+                Attendance
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- Page -->
+
+    <main class="students-page">
+
+        <div class="page-header">
+
+            <div>
+
+                <p class="tagline">
+                    ATTENDANCE HISTORY
+                </p>
+
+                <h1>
+                    {{ student[1] }} 📅
+                </h1>
+
+                <p>
+                    Attendance records for this student.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Student Information -->
+
+        <div class="attendance-history-info">
+
+            <div>
+                <strong>Student ID</strong>
+                <span>{{ student[2] }}</span>
+            </div>
+
+            <div>
+                <strong>Course</strong>
+                <span>{{ student[3] }}</span>
+            </div>
+
+        </div>
+
+
+        <!-- Attendance History -->
+
+        <div class="student-table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for record in attendance_records %}
+
+                    <tr>
+
+                        <td>
+                            {{ record[0] }}
+                        </td>
+
+                        <td>
+
+                            {% if record[1] == "Present" %}
+
+                            <span class="attendance-status present-status">
+                                ✓ Present
+                            </span>
+
+                            {% else %}
+
+                            <span class="attendance-status absent-status">
+                                ✕ Absent
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+
+                    {% if not attendance_records %}
+
+                    <tr>
+
+                        <td colspan="2"
+                            style="text-align: center; padding: 30px;">
+
+                            No attendance records yet.
+
+                        </td>
+
+                    </tr>
+
+                    {% endif %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <br>
+
+        <a href="{{ url_for('attendance') }}"
+           class="start-btn">
+
+            ← Back to Attendance
+
+        </a>
+
+    </main>
+
+</body>
+
+</html>

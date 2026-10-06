@@ -326,6 +326,45 @@ def attendance():
         present_count=present_count,
         absent_count=absent_count
     )
+
+@app.route("/attendance-history/<int:student_id>")
+@login_required
+def attendance_history(student_id):
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    # Get student information
+    cursor.execute("""
+        SELECT id, name, roll_no, course
+        FROM students
+        WHERE id = ?
+    """, (student_id,))
+
+    student = cursor.fetchone()
+
+    # If student does not exist
+    if student is None:
+        connection.close()
+        return "Student not found", 404
+
+    # Get attendance history
+    cursor.execute("""
+        SELECT date, status
+        FROM attendance
+        WHERE student_id = ?
+        ORDER BY date DESC
+    """, (student_id,))
+
+    attendance_records = cursor.fetchall()
+
+    connection.close()
+
+    return render_template(
+        "attendance_history.html",
+        student=student,
+        attendance_records=attendance_records
+    )
   
 
 @app.route("/mark-attendance/<int:student_id>/<status>")
