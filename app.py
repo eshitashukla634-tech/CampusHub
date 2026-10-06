@@ -358,14 +358,47 @@ def attendance_history(student_id):
 
     attendance_records = cursor.fetchall()
 
+        # Count present days
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM attendance
+        WHERE student_id = ?
+        AND status = 'Present'
+    """, (student_id,))
+
+    present_count = cursor.fetchone()[0]
+
+    # Count absent days
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM attendance
+        WHERE student_id = ?
+        AND status = 'Absent'
+    """, (student_id,))
+
+    absent_count = cursor.fetchone()[0]
+
+    # Calculate attendance percentage
+    total_attendance = present_count + absent_count
+
+    if total_attendance > 0:
+        attendance_percentage = round(
+            (present_count / total_attendance) * 100
+        )
+    else:
+        attendance_percentage = 0
+
+
     connection.close()
 
     return render_template(
-        "attendance_history.html",
-        student=student,
-        attendance_records=attendance_records
-    )
-  
+    "attendance_history.html",
+    student=student,
+    attendance_records=attendance_records,
+    present_count=present_count,
+    absent_count=absent_count,
+    attendance_percentage=attendance_percentage
+)
 
 @app.route("/mark-attendance/<int:student_id>/<status>")
 @login_required

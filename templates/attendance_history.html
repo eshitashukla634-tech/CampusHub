@@ -71,19 +71,34 @@
 
         <!-- Student Information -->
 
-        <div class="attendance-history-info">
+       <div class="attendance-history-info">
 
-            <div>
-                <strong>Student ID</strong>
-                <span>{{ student[2] }}</span>
-            </div>
+    <div>
+        <strong>Student ID</strong>
+        <span>{{ student[2] }}</span>
+    </div>
 
-            <div>
-                <strong>Course</strong>
-                <span>{{ student[3] }}</span>
-            </div>
+    <div>
+        <strong>Course</strong>
+        <span>{{ student[3] }}</span>
+    </div>
 
-        </div>
+    <div>
+        <strong>Present</strong>
+        <span>{{ present_count }}</span>
+    </div>
+
+    <div>
+        <strong>Absent</strong>
+        <span>{{ absent_count }}</span>
+    </div>
+
+    <div>
+        <strong>Attendance</strong>
+        <span>{{ attendance_percentage }}%</span>
+    </div>
+
+</div>
 
 
         <!-- Attendance History -->
