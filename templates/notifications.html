@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Notifications | CampusHub</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <h2>🚀 CampusHub</h2>
+
+        <div>
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('students') }}">Students</a>
+            <a href="{{ url_for('assignments') }}">Assignments</a>
+            <a href="{{ url_for('notifications') }}" class="notification-link">
+    🔔 Notifications
+
+    {% if unread_count > 0 %}
+        <span class="notification-count">
+            {{ unread_count }}
+        </span>
+    {% endif %}
+</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </nav>
+
+    <main class="container">
+
+        <section class="page-header">
+            <p class="section-label">CAMPUS UPDATES</p>
+
+            <h1>Notifications 🔔</h1>
+
+            <p>Stay updated with your assignments and deadlines.</p>
+        </section>
+
+        <section class="notification-container">
+
+            {% if notifications %}
+
+                {% for notification in notifications %}
+
+                    <div class="notification-card
+                        {% if notification[2] == 'Overdue' %}
+                            overdue
+                        {% elif notification[2] == 'Due Today' %}
+                            due-today
+                        {% else %}
+                            upcoming
+                        {% endif %}
+
+                        {% if notification[3] == 0 %}
+                            unread
+                        {% endif %}">
+
+                        <div class="notification-content">
+
+                            <h3>
+                                {% if notification[2] == 'Overdue' %}
+                                    🔴 Overdue Assignment
+                                {% elif notification[2] == 'Due Today' %}
+                                    🟠 Due Today
+                                {% else %}
+                                    🟡 Assignment Reminder
+                                {% endif %}
+                            </h3>
+
+                            <p>{{ notification[1] }}</p>
+
+                            <small>{{ notification[4] }}</small>
+
+                        </div>
+
+                        {% if notification[3] == 0 %}
+
+                            <a class="read-button"
+                               href="{{ url_for('mark_notification_read',
+                               notification_id=notification[0]) }}">
+                                ✓ Mark as Read
+                            </a>
+
+                        {% else %}
+
+                            <span class="read-label">✓ Read</span>
+
+                        {% endif %}
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="empty-notifications">
+                    <h2>🎉 You're all caught up!</h2>
+                    <p>You don't have any notifications right now.</p>
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+</body>
+</html>

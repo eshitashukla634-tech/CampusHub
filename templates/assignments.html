@@ -29,19 +29,50 @@
 
         <div class="nav-links">
 
-            <a href="{{ url_for('home') }}">
-                Home
-            </a>
+            <div class="nav-links">
 
-            <a href="{{ url_for('dashboard') }}">
-                Dashboard
-            </a>
 
-            <a href="{{ url_for('students') }}">
-                Students
-            </a>
+        <a href="{{ url_for('home') }}">
+              Home
+        </a>
 
-        </div>
+        <a href="{{ url_for('dashboard') }}">
+              Dashboard
+        </a>
+
+        <a href="{{ url_for('students') }}">
+            Students
+        </a>
+
+        <a href="{{ url_for('assignments') }}">
+            Assignments
+        </a>
+
+<!-- Notification Bell -->
+
+<a href="{{ url_for('notifications') }}" class="notification-link">
+
+    🔔 Notifications
+
+    {% if unread_count > 0 %}
+        <span class="notification-count">
+            {{ unread_count }}
+        </span>
+    {% endif %}
+
+</a>
+
+<a href="{{ url_for('profile') }}">
+    Profile
+</a>
+
+<a href="{{ url_for('logout') }}">
+    Logout
+</a>
+
+
+</div>
+
 
     </nav>
 
@@ -187,10 +218,18 @@
 
                     </span>
 
-                    <p class="deadline-status">
-                         {{ assignment[6] }}
+                    <p class="deadline-status
+                         {% if assignment[6] == 'Overdue' %}
+                              overdue
+                        {% elif assignment[6] == 'Due Today' or assignment[6] == 'Due Tomorrow' %}
+                            due-soon
+                        {% elif assignment[6] == 'Completed' %}
+                            completed
+                         {% else %}
+                            days-left
+                        {% endif %}">
+                        ⏳ {{ assignment[6] }}
                     </p>
-
 
                 </div>
 

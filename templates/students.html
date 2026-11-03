@@ -26,18 +26,47 @@
             🚀 CampusHub
         </div>
 
-        <div class="nav-links">
+       <div class="nav-links">
 
-            <a href="{{ url_for('home') }}">
-                Home
-            </a>
+    <a href="{{ url_for('home') }}">
+        Home
+    </a>
 
-            <a href="{{ url_for('dashboard') }}">
-                Dashboard
-            </a>
+    <a href="{{ url_for('dashboard') }}">
+        Dashboard
+    </a>
 
-        </div>
+    <a href="{{ url_for('students') }}">
+        Students
+    </a>
 
+    <a href="{{ url_for('assignments') }}">
+        Assignments
+    </a>
+
+    <a href="{{ url_for('attendance') }}">
+        Attendance
+    </a>
+
+    <a href="{{ url_for('notifications') }}" class="notification-link">
+        🔔 Notifications
+
+        {% if unread_count > 0 %}
+            <span class="notification-count">
+                {{ unread_count }}
+            </span>
+        {% endif %}
+    </a>
+
+    <a href="{{ url_for('profile') }}">
+        Profile
+    </a>
+
+    <a href="{{ url_for('logout') }}">
+        Logout
+    </a>
+
+</div>
     </nav>
 
 

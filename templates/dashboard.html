@@ -1,289 +1,264 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
 
-    <title>Dashboard | CampusHub</title>
+<title>Dashboard | CampusHub</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}">
+
 
 </head>
 
 <body>
 
-    <!-- ========================= -->
-    <!-- NAVIGATION -->
-    <!-- ========================= -->
 
-    <nav class="navbar">
+<!-- NAVIGATION -->
 
-        <div class="logo">
-            🚀 CampusHub
+<nav class="navbar">
+
+    <div class="logo">
+        🚀 CampusHub
+    </div>
+
+    <div class="nav-links">
+
+        <a href="{{ url_for('home') }}">Home</a>
+
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+
+        <a href="{{ url_for('students') }}">Students</a>
+
+        <a href="{{ url_for('assignments') }}">Assignments</a>
+
+        <!-- Notification Bell -->
+
+        <a href="{{ url_for('notifications') }}"
+           class="notification-link">
+
+            🔔 Notifications
+
+            {% if unread_count > 0 %}
+                <span class="notification-count">
+                    {{ unread_count }}
+                </span>
+            {% endif %}
+
+        </a>
+
+        <a href="{{ url_for('profile') }}">Profile</a>
+
+        <a href="{{ url_for('logout') }}">Logout</a>
+
+    </div>
+
+</nav>
+
+
+<!-- DASHBOARD -->
+
+<main class="dashboard">
+
+    <!-- Dashboard Header -->
+
+    <div class="dashboard-header">
+
+        <div>
+
+            <p class="tagline">
+                CAMPUSHUB DASHBOARD
+            </p>
+
+            <h1>
+                Welcome back, {{ session['user_name'] }} 👋
+            </h1>
+
+            <p class="user-role">
+                {{ session['user_role'] | title }} Account
+            </p>
+
+            <p>
+                Manage your campus activities from one place.
+            </p>
+
         </div>
 
-        <div class="nav-links">
-
-            <a href="{{ url_for('home') }}">
-                Home
-            </a>
-
-            <a href="{{ url_for('profile') }}">
-                Profile
-            </a>
-
-            <a href="{{ url_for('login') }}">
-                Logout
-            </a>
-
-        </div>
-
-    </nav>
+    </div>
 
 
-    <!-- ========================= -->
-    <!-- DASHBOARD -->
-    <!-- ========================= -->
+    <!-- LIVE STATISTICS -->
 
-    <main class="dashboard">
+    <div class="dashboard-stats">
 
+        <!-- Total Students -->
 
-        <!-- Dashboard Header -->
+        <div class="stat-card">
 
-        <div class="dashboard-header">
+            <div class="stat-icon">👨‍🎓</div>
 
             <div>
-
-                <p class="tagline">
-                    CAMPUSHUB DASHBOARD
-                </p>
-
-                <h1>
-                    Welcome back, {{ session['user_name'] }} 👋
-                </h1>
-                <p class="user-role">
-                    {{ session['user_role'] | title }} Account
-                </p>
-
-                <p>
-                    Manage your campus activities from one place.
-                </p>
-
+                <h3>Total Students</h3>
+                <h2>{{ total_students }}</h2>
             </div>
 
         </div>
 
 
-        <!-- ========================= -->
-        <!-- LIVE STATISTICS -->
-        <!-- ========================= -->
+        <!-- Attendance -->
 
-        <div class="dashboard-stats">
+        <div class="stat-card">
 
+            <div class="stat-icon">📊</div>
 
-            <!-- Total Students -->
-
-            <div class="stat-card">
-
-                <div class="stat-icon">
-                    👨‍🎓
-                </div>
-
-                <div>
-
-                    <h3>
-                        Total Students
-                    </h3>
-
-                    <h2>
-                        {{ total_students }}
-                    </h2>
-
-                </div>
-
+            <div>
+                <h3>Attendance</h3>
+                <h2>{{ attendance_percentage }}%</h2>
             </div>
-
-
-            <!-- Attendance -->
-
-            <div class="stat-card">
-
-                <div class="stat-icon">
-                    📊
-                </div>
-
-                <div>
-
-                    <h3>
-                        Attendance
-                    </h3>
-
-                    <h2>
-                        {{ attendance_percentage }}%
-                    </h2>
-
-                </div>
-
-            </div>
-
-
-            <!-- Total Assignments -->
-
-            <div class="stat-card">
-
-                <div class="stat-icon">
-                    📝
-                </div>
-
-                <div>
-
-                    <h3>
-                        Assignments
-                    </h3>
-
-                    <h2>
-                        {{ total_assignments }}
-                    </h2>
-
-                </div>
-
-            </div>
-
-
-            <!-- Pending Assignments -->
-
-            <div class="stat-card">
-
-                <div class="stat-icon">
-                    ⏳
-                </div>
-
-                <div>
-
-                    <h3>
-                        Pending
-                    </h3>
-
-                    <h2>
-                        {{ pending_assignments }}
-                    </h2>
-
-                </div>
-
-            </div>
-
 
         </div>
 
 
-        <!-- ========================= -->
-        <!-- DASHBOARD MODULES -->
-        <!-- ========================= -->
+        <!-- Total Assignments -->
 
-        <div class="dashboard-grid">
+        <div class="stat-card">
 
+            <div class="stat-icon">📝</div>
 
-            <!-- Students -->
-
-            <div class="dashboard-card">
-
-                <div class="dashboard-icon">
-                    👨‍🎓
-                </div>
-
-                <h2>
-                    Students
-                </h2>
-
-                <p>
-                    Manage student records and profiles.
-                </p>
-
-                <a href="{{ url_for('students') }}">
-                    Open →
-                </a>
-
+            <div>
+                <h3>Assignments</h3>
+                <h2>{{ total_assignments }}</h2>
             </div>
-
-
-            <!-- Attendance -->
-
-            <div class="dashboard-card">
-
-                <div class="dashboard-icon">
-                    📅
-                </div>
-
-                <h2>
-                    Attendance
-                </h2>
-
-                <p>
-                    Track attendance and participation.
-                </p>
-
-                <a href="{{ url_for('attendance') }}">
-                    Open →
-                </a>
-
-            </div>
-
-
-            <!-- Assignments -->
-
-            <div class="dashboard-card">
-
-                <div class="dashboard-icon">
-                    📝
-                </div>
-
-                <h2>
-                    Assignments
-                </h2>
-
-                <p>
-                    Manage assignments and deadlines.
-                </p>
-
-                <a href="{{ url_for('assignments') }}">
-                    Open →
-                </a>
-
-            </div>
-
-
-            <!-- Analytics -->
-
-            <div class="dashboard-card">
-
-                <div class="dashboard-icon">
-                    📊
-                </div>
-
-                <h2>
-                    Analytics
-                </h2>
-
-                <p>
-                    View academic and attendance insights.
-                </p>
-
-                <a href="{{ url_for('analytics') }}">
-                    Open →
-                </a>
-
-            </div>
-
 
         </div>
 
 
-    </main>
+        <!-- Pending Assignments -->
+
+        <div class="stat-card">
+
+            <div class="stat-icon">⏳</div>
+
+            <div>
+                <h3>Pending</h3>
+                <h2>{{ pending_assignments }}</h2>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- DASHBOARD MODULES -->
+
+    <div class="dashboard-grid">
+
+        <!-- Students -->
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-icon">👨‍🎓</div>
+
+            <h2>Students</h2>
+
+            <p>
+                Manage student records and profiles.
+            </p>
+
+            <a href="{{ url_for('students') }}">
+                Open →
+            </a>
+
+        </div>
+
+
+        <!-- Attendance -->
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-icon">📅</div>
+
+            <h2>Attendance</h2>
+
+            <p>
+                Track attendance and participation.
+            </p>
+
+            <a href="{{ url_for('attendance') }}">
+                Open →
+            </a>
+
+        </div>
+
+
+        <!-- Assignments -->
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-icon">📝</div>
+
+            <h2>Assignments</h2>
+
+            <p>
+                Manage assignments and deadlines.
+            </p>
+
+            <a href="{{ url_for('assignments') }}">
+                Open →
+            </a>
+
+        </div>
+
+
+        <!-- Analytics -->
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-icon">📊</div>
+
+            <h2>Analytics</h2>
+
+            <p>
+                View academic and attendance insights.
+            </p>
+
+            <a href="{{ url_for('analytics') }}">
+                Open →
+            </a>
+
+        </div>
+
+
+        <!-- Notifications -->
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-icon">🔔</div>
+
+            <h2>Notifications</h2>
+
+            <p>
+                Check upcoming deadlines and important alerts.
+            </p>
+
+            <a href="{{ url_for('notifications') }}">
+                Open →
+
+                {% if unread_count > 0 %}
+                    ({{ unread_count }} Unread)
+                {% endif %}
+
+            </a>
+
+        </div>
+
+    </div>
+
+</main>
 
 
 </body>

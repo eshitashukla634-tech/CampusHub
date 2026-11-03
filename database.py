@@ -58,10 +58,22 @@ VALUES (?, ?, ?, ?)
     "admin"
 ))
 
-
+# Notifications Table
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS notifications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    message TEXT NOT NULL,
+    notification_type TEXT NOT NULL,
+    is_read INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+)
+""")
 
 connection.commit()
 
 connection.close()
 
 print("Database created successfully!")
+

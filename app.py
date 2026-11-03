@@ -20,6 +20,64 @@ def login_required(function):
     return wrapper
 
 
+def generate_notifications(user_id):
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT id, title, due_date
+        FROM assignments
+        WHERE status = 'Pending'
+    """)
+
+    assignments = cursor.fetchall()
+
+    today = date.today()
+
+    for assignment in assignments:
+
+        assignment_id = assignment[0]
+        title = assignment[1]
+        due_date = date.fromisoformat(assignment[2])
+
+        remaining_days = (due_date - today).days
+
+        if remaining_days == 1:
+            message = f"Assignment '{title}' is due tomorrow."
+            notification_type = "Due Tomorrow"
+
+        elif remaining_days == 0:
+            message = f"Assignment '{title}' is due today."
+            notification_type = "Due Today"
+
+        elif remaining_days < 0:
+            message = f"Assignment '{title}' is overdue."
+            notification_type = "Overdue"
+
+        else:
+            continue
+
+        cursor.execute("""
+            SELECT id FROM notifications
+            WHERE user_id = ?
+            AND message = ?
+            AND notification_type = ?
+        """, (user_id, message, notification_type))
+
+        existing = cursor.fetchone()
+
+        if existing is None:
+            cursor.execute("""
+                INSERT INTO notifications
+                (user_id, message, notification_type)
+                VALUES (?, ?, ?)
+            """, (user_id, message, notification_type))
+
+    connection.commit()
+    connection.close()
+
+
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -676,6 +734,80 @@ def analytics():
         pending_assignments=pending_assignments
     )
 
+
+# Notifications Page
+@app.route("/notifications")
+@login_required
+def notifications():
+
+    user_id = session["user_id"]
+
+    # Generate new notifications
+    generate_notifications(user_id)
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT id, message, notification_type,
+               is_read, created_at
+        FROM notifications
+        WHERE user_id = ?
+        ORDER BY created_at DESC
+    """, (user_id,))
+
+    notifications = cursor.fetchall()
+
+    connection.close()
+
+    return render_template(
+        "notifications.html",
+        notifications=notifications
+    )
+
+
+# Global notification count
+@app.context_processor
+def inject_notification_count():
+
+    if "user_id" not in session:
+        return {"unread_count": 0}
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM notifications
+        WHERE user_id = ?
+        AND is_read = 0
+    """, (session["user_id"],))
+
+    unread_count = cursor.fetchone()[0]
+
+    connection.close()
+
+    return {"unread_count": unread_count}
+
+
+# Mark notification as read
+@app.route("/mark-notification-read/<int:notification_id>")
+@login_required
+def mark_notification_read(notification_id):
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        UPDATE notifications
+        SET is_read = 1
+        WHERE id = ? AND user_id = ?
+    """, (notification_id, session["user_id"]))
+
+    connection.commit()
+    connection.close()
+
+    return redirect(url_for("notifications"))
 
 @app.route("/logout")
 def logout():
