@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for,session
 from functools import wraps
 import sqlite3
+from datetime import date
 
 app = Flask(__name__)
 
@@ -434,41 +435,6 @@ def assignments():
     cursor = connection.cursor()
 
     if search:
-
-        cursor.execute("""
-            SELECT * FROM assignments
-            WHERE title LIKE ?
-            OR subject LIKE ?
-            ORDER BY due_date
-        """, (
-            f"%{search}%",
-            f"%{search}%"
-        ))
-
-    else:
-
-        cursor.execute("""
-            SELECT * FROM assignments
-            ORDER BY due_date
-        """)
-
-    assignments = cursor.fetchall()
-
-    connection.close()
-
-    return render_template(
-        "assignments.html",
-        assignments=assignments,
-        search=search
-    )
-
-    search = request.args.get("search", "")
-
-    connection = sqlite3.connect("campushub.db")
-    cursor = connection.cursor()
-
-    if search:
-
         cursor.execute("""
             SELECT * FROM assignments
             WHERE title LIKE ?
@@ -477,7 +443,6 @@ def assignments():
         """, (f"%{search}%", f"%{search}%"))
 
     else:
-
         cursor.execute("""
             SELECT * FROM assignments
             ORDER BY due_date
@@ -487,11 +452,42 @@ def assignments():
 
     connection.close()
 
+    # Calculate assignment deadlines
+    today = date.today()
+
+    updated_assignments = []
+
+    for assignment in assignments:
+
+        due_date = date.fromisoformat(assignment[4])
+
+        remaining_days = (due_date - today).days
+
+        if assignment[5] == "Completed":
+            deadline_status = "Completed"
+
+        elif remaining_days < 0:
+            deadline_status = "Overdue"
+
+        elif remaining_days == 0:
+            deadline_status = "Due Today"
+
+        elif remaining_days == 1:
+            deadline_status = "Due Tomorrow"
+
+        else:
+            deadline_status = f"{remaining_days} Days Left"
+
+        updated_assignments.append(
+            assignment + (deadline_status,)
+        )
+
     return render_template(
         "assignments.html",
-        assignments=assignments,
+        assignments=updated_assignments,
         search=search
     )
+
 
 @app.route("/add-assignment", methods=["GET", "POST"])
 @login_required
