@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for,session
 from functools import wraps
 import sqlite3
-from datetime import date
+from datetime import date, timedelta
 
 app = Flask(__name__)
 
@@ -677,6 +677,10 @@ def update_assignment_status(assignment_id, status):
 @login_required
 def analytics():
 
+
+    today = date.today()
+    start_date = today - timedelta(days=6)
+
     connection = sqlite3.connect("campushub.db")
     cursor = connection.cursor()
 
@@ -722,7 +726,143 @@ def analytics():
     """)
     pending_assignments = cursor.fetchone()[0]
 
-    connection.close()
+    #Overall attendance 
+    cursor.execute("""
+        SELECT 
+            COUNT(CASE WHEN status = 'Present' THEN 1 END),
+            COUNT(CASE WHEN status = 'Absent' THEN 1 END)
+        FROM attendance
+    """)
+    total_present, total_absent = cursor.fetchone()
+
+    total_records = total_present + total_absent
+
+    if total_records > 0:
+        overall_present = round((total_present / total_records) * 100)
+
+    else:
+        overall_present = 0
+
+
+    #Weekly attendance
+    today = date.today()
+    start_date = today - timedelta(days=6)
+    
+
+    cursor.execute("""
+        SELECT date,
+               SUM(CASE WHEN status = 'Present' THEN 1 ELSE 0 END),
+               SUM(CASE WHEN status = 'Absent' THEN 1 ELSE 0 END)
+        FROM attendance
+        WHERE date BETWEEN ? AND ?
+        GROUP BY date
+        ORDER BY date
+    """, (start_date.isoformat(), today.isoformat()))
+
+    weekly_records = cursor.fetchall()
+
+    weekly_data = {
+        record[0]: {
+            "present": record[1],
+            "absent": record[2]
+        }
+        for record in weekly_records
+    }
+
+    weekly_labels = []
+    weekly_present = []
+    weekly_absent = []
+
+    for i in range(7):
+
+        current_date = start_date + timedelta(days=i)
+        date_string = current_date.isoformat()
+
+        weekly_labels.append(current_date.strftime("%d %b"))
+
+        weekly_present.append(
+            weekly_data.get(date_string, {}).get("present", 0)
+        )
+
+        weekly_absent.append(
+            weekly_data.get(date_string, {}).get("absent", 0)
+        )
+
+    # Student-wise attendance
+    cursor.execute("""
+        SELECT
+            students.id,
+            students.name,
+            students.roll_no,
+            COUNT(attendance.id),
+            SUM(
+                CASE
+                    WHEN attendance.status = 'Present'
+                    THEN 1 ELSE 0
+                END
+            )
+        FROM students
+        LEFT JOIN attendance
+        ON students.id = attendance.student_id
+        GROUP BY students.id
+        ORDER BY students.name
+    """)
+
+    student_records = cursor.fetchall()
+
+    student_attendance = []
+
+    for student in student_records:
+
+        student_id = student[0]
+        name = student[1]
+        roll_no = student[2]
+        total = student[3]
+        present = student[4] or 0
+
+        if total > 0:
+            percentage = round((present / total) * 100)
+        else:
+            percentage = 0
+
+        student_attendance.append({
+            "id": student_id,
+            "name": name,
+            "roll_no": roll_no,
+            "percentage": percentage,
+            "total": total,
+            "present": present
+        })
+
+    # Students below 75% attendance
+    low_attendance = [
+        student for student in student_attendance
+        if student["total"] > 0
+        and student["percentage"] < 75
+    ]
+
+   
+
+        # Calculate overall attendance
+
+    attendance_data = cursor.execute("""
+        SELECT
+            COUNT(CASE WHEN status = 'Present' THEN 1 END),
+            COUNT(CASE WHEN status = 'Absent' THEN 1 END)
+        FROM attendance
+    """).fetchone()
+
+    total_present = attendance_data[0]
+    total_absent = attendance_data[1]
+
+    total_attendance = total_present + total_absent
+
+    if total_attendance > 0:
+        overall_attendance = round(
+            (total_present / total_attendance) * 100, 2
+        )
+    else:
+        overall_attendance = 0
 
     return render_template(
         "analytics.html",
@@ -731,8 +871,16 @@ def analytics():
         absent_today=absent_today,
         total_assignments=total_assignments,
         completed_assignments=completed_assignments,
-        pending_assignments=pending_assignments
+        pending_assignments=pending_assignments,
+        overall_attendance=overall_attendance,
+        weekly_labels=weekly_labels,
+        weekly_present=weekly_present,
+        weekly_absent=weekly_absent,
+        student_attendance=student_attendance,
+        low_attendance=low_attendance
     )
+
+
 
 
 # Notifications Page
@@ -820,3 +968,6 @@ def logout():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+
