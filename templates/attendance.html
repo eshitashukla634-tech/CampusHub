@@ -28,6 +28,18 @@
 
         <div class="nav-links">
 
+            <a href="{{ url_for('notifications') }}" class="notification-link">
+
+    🔔 Notifications
+
+    {% if unread_count > 0 %}
+        <span class="notification-count">
+            {{ unread_count }}
+        </span>
+    {% endif %}
+
+            </a>
+
             <a href="{{ url_for('home') }}">
                 Home
             </a>
