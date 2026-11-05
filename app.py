@@ -914,6 +914,7 @@ def performance():
     connection = sqlite3.connect("campushub.db")
     cursor = connection.cursor()
 
+    # 1. Get all assessment records
     cursor.execute("""
         SELECT
             performance.id,
@@ -926,19 +927,17 @@ def performance():
             performance.assessment_date
         FROM performance
         JOIN students
-        ON performance.student_id = students.id
+            ON performance.student_id = students.id
         ORDER BY performance.assessment_date DESC
     """)
 
     records = cursor.fetchall()
-
     performance_records = []
 
     for record in records:
-
-        percentage = round(
-            (record[6] / record[5]) * 100, 2
-        ) if record[5] > 0 else 0
+        total_marks = float(record[5] or 0)
+        obtained_marks = float(record[6] or 0)
+        percentage = round((obtained_marks / total_marks) * 100, 2) if total_marks > 0 else 0
 
         performance_records.append({
             "id": record[0],
@@ -946,37 +945,33 @@ def performance():
             "roll_no": record[2],
             "subject": record[3],
             "assessment_name": record[4],
-            "total_marks": record[5],
-            "obtained_marks": record[6],
+            "total_marks": total_marks,
+            "obtained_marks": obtained_marks,
             "date": record[7],
             "percentage": percentage,
             "grade": calculate_grade(percentage)
         })
 
+    # 2. Student-wise average performance
     cursor.execute("""
         SELECT
             students.id,
             students.name,
             students.roll_no,
-            AVG(
-                performance.obtained_marks * 100.0 /
-                performance.total_marks
-            )
+            AVG(performance.obtained_marks * 100.0 / performance.total_marks)
         FROM students
         JOIN performance
-        ON students.id = performance.student_id
-        GROUP BY students.id
+            ON students.id = performance.student_id
+        WHERE performance.total_marks > 0
+        GROUP BY students.id, students.name, students.roll_no
         ORDER BY students.name
     """)
 
     student_results = cursor.fetchall()
-
     student_performance = []
 
     for student in student_results:
-
-        average = round(student[3], 2)
-
+        average = round(float(student[3] or 0), 2)
         student_performance.append({
             "id": student[0],
             "name": student[1],
@@ -985,20 +980,60 @@ def performance():
             "grade": calculate_grade(average)
         })
 
+    # 3. Top three performers
+    top_performers = sorted(
+        student_performance,
+        key=lambda item: item["average"],
+        reverse=True
+    )[:3]
+
+    # 4. Subject-wise averages
+    cursor.execute("""
+        SELECT
+            subject,
+            ROUND(AVG(obtained_marks * 100.0 / total_marks), 2)
+        FROM performance
+        WHERE total_marks > 0
+        GROUP BY subject
+        ORDER BY subject
+    """)
+
+    subject_results = cursor.fetchall()
+    subject_labels = [item[0] for item in subject_results]
+    subject_averages = [float(item[1] or 0) for item in subject_results]
+
+    # 5. Grade distribution across assessment records
+    grade_labels = ["A+", "A", "B", "C", "D", "E", "F"]
+    grade_counts = {grade: 0 for grade in grade_labels}
+
+    for record in performance_records:
+        grade_counts[record["grade"]] += 1
+
+    grade_values = [grade_counts[grade] for grade in grade_labels]
+
+    # 6. Students whose average is below 40%
     low_performance = [
         student for student in student_performance
         if student["average"] < 40
     ]
 
+    # 7. Average across all assessment records
     total_records = len(performance_records)
-
-    if total_records > 0:
+    if total_records:
         overall_average = round(
-            sum(r["percentage"] for r in performance_records)
-            / total_records, 2
+            sum(item["percentage"] for item in performance_records) / total_records,
+            2
         )
     else:
         overall_average = 0
+
+    # 8. Highest and lowest performing subjects
+    if subject_results:
+        highest_subject = max(subject_results, key=lambda item: item[1])
+        lowest_subject = min(subject_results, key=lambda item: item[1])
+    else:
+        highest_subject = None
+        lowest_subject = None
 
     connection.close()
 
@@ -1007,6 +1042,13 @@ def performance():
         performance_records=performance_records,
         student_performance=student_performance,
         low_performance=low_performance,
+        top_performers=top_performers,
+        subject_labels=subject_labels,
+        subject_averages=subject_averages,
+        grade_labels=grade_labels,
+        grade_values=grade_values,
+        highest_subject=highest_subject,
+        lowest_subject=lowest_subject,
         total_records=total_records,
         overall_average=overall_average
     )
