@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Add Performance | CampusHub</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<nav class="navbar">
+
+    <div class="logo">🚀 CampusHub</div>
+
+    <div class="nav-links">
+
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('performance') }}">Performance</a>
+
+    </div>
+
+</nav>
+
+
+<main class="form-page">
+
+    <div class="form-container">
+
+        <h1>Add Student Marks 📝</h1>
+
+        <p>Enter the student's assessment details.</p>
+
+        <form method="POST">
+
+            <label>Select Student</label>
+
+            <select name="student_id" required>
+
+                <option value="">Choose Student</option>
+
+                {% for student in students %}
+
+                <option value="{{ student[0] }}">
+                    {{ student[1] }} - {{ student[2] }}
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+
+            <label>Subject</label>
+
+            <input type="text"
+                   name="subject"
+                   placeholder="Enter subject"
+                   required>
+
+
+            <label>Assessment Name</label>
+
+            <input type="text"
+                   name="assessment_name"
+                   placeholder="Midterm / Quiz / Practical"
+                   required>
+
+
+            <label>Total Marks</label>
+
+            <input type="number"
+                   name="total_marks"
+                   min="0.01"
+                   step="any"
+                   required>
+
+
+            <label>Obtained Marks</label>
+
+            <input type="number"
+                   name="obtained_marks"
+                   min="0"
+                   step="any"
+                   required>
+
+
+            <label>Assessment Date</label>
+
+            <input type="date"
+                   name="assessment_date"
+                   required>
+
+
+            <button type="submit">
+                Save Performance
+            </button>
+
+        </form>
+
+        <br>
+
+        <a href="{{ url_for('performance') }}">
+            Back to Performance
+        </a>
+
+    </div>
+
+</main>
+
+</body>
+</html>

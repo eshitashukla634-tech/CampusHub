@@ -71,6 +71,22 @@ CREATE TABLE IF NOT EXISTS notifications (
 )
 """)
 
+
+# Student Performance Table
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS performance (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id INTEGER NOT NULL,
+    subject TEXT NOT NULL,
+    assessment_name TEXT NOT NULL,
+    total_marks REAL NOT NULL,
+    obtained_marks REAL NOT NULL,
+    assessment_date TEXT NOT NULL,
+    FOREIGN KEY (student_id) REFERENCES students(id)
+)
+""")
+
+
 connection.commit()
 
 connection.close()

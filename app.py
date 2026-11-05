@@ -864,6 +864,8 @@ def analytics():
     else:
         overall_attendance = 0
 
+    connection.close()
+
     return render_template(
         "analytics.html",
         total_students=total_students,
@@ -881,6 +883,288 @@ def analytics():
     )
 
 
+# =====================================
+# STUDENT PERFORMANCE TRACKING
+# =====================================
+
+def calculate_grade(percentage):
+
+    if percentage >= 90:
+        return "A+"
+    elif percentage >= 80:
+        return "A"
+    elif percentage >= 70:
+        return "B"
+    elif percentage >= 60:
+        return "C"
+    elif percentage >= 50:
+        return "D"
+    elif percentage >= 40:
+        return "E"
+    else:
+        return "F"
+
+
+# Performance Dashboard
+
+@app.route("/performance")
+@login_required
+def performance():
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT
+            performance.id,
+            students.name,
+            students.roll_no,
+            performance.subject,
+            performance.assessment_name,
+            performance.total_marks,
+            performance.obtained_marks,
+            performance.assessment_date
+        FROM performance
+        JOIN students
+        ON performance.student_id = students.id
+        ORDER BY performance.assessment_date DESC
+    """)
+
+    records = cursor.fetchall()
+
+    performance_records = []
+
+    for record in records:
+
+        percentage = round(
+            (record[6] / record[5]) * 100, 2
+        ) if record[5] > 0 else 0
+
+        performance_records.append({
+            "id": record[0],
+            "name": record[1],
+            "roll_no": record[2],
+            "subject": record[3],
+            "assessment_name": record[4],
+            "total_marks": record[5],
+            "obtained_marks": record[6],
+            "date": record[7],
+            "percentage": percentage,
+            "grade": calculate_grade(percentage)
+        })
+
+    cursor.execute("""
+        SELECT
+            students.id,
+            students.name,
+            students.roll_no,
+            AVG(
+                performance.obtained_marks * 100.0 /
+                performance.total_marks
+            )
+        FROM students
+        JOIN performance
+        ON students.id = performance.student_id
+        GROUP BY students.id
+        ORDER BY students.name
+    """)
+
+    student_results = cursor.fetchall()
+
+    student_performance = []
+
+    for student in student_results:
+
+        average = round(student[3], 2)
+
+        student_performance.append({
+            "id": student[0],
+            "name": student[1],
+            "roll_no": student[2],
+            "average": average,
+            "grade": calculate_grade(average)
+        })
+
+    low_performance = [
+        student for student in student_performance
+        if student["average"] < 40
+    ]
+
+    total_records = len(performance_records)
+
+    if total_records > 0:
+        overall_average = round(
+            sum(r["percentage"] for r in performance_records)
+            / total_records, 2
+        )
+    else:
+        overall_average = 0
+
+    connection.close()
+
+    return render_template(
+        "performance.html",
+        performance_records=performance_records,
+        student_performance=student_performance,
+        low_performance=low_performance,
+        total_records=total_records,
+        overall_average=overall_average
+    )
+
+
+# Add Performance
+
+@app.route("/add-performance", methods=["GET", "POST"])
+@login_required
+def add_performance():
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT id, name, roll_no FROM students")
+    students = cursor.fetchall()
+
+    if request.method == "POST":
+
+        student_id = request.form["student_id"]
+        subject = request.form["subject"].strip()
+        assessment_name = request.form["assessment_name"].strip()
+        total_marks = float(request.form["total_marks"])
+        obtained_marks = float(request.form["obtained_marks"])
+        assessment_date = request.form["assessment_date"]
+
+        if (
+            not subject
+            or not assessment_name
+            or total_marks <= 0
+            or obtained_marks < 0
+            or obtained_marks > total_marks
+        ):
+            connection.close()
+            return "Invalid marks or assessment details.", 400
+
+        cursor.execute("""
+            INSERT INTO performance
+            (
+                student_id,
+                subject,
+                assessment_name,
+                total_marks,
+                obtained_marks,
+                assessment_date
+            )
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (
+            student_id,
+            subject,
+            assessment_name,
+            total_marks,
+            obtained_marks,
+            assessment_date
+        ))
+
+        connection.commit()
+        connection.close()
+
+        return redirect(url_for("performance"))
+
+    connection.close()
+
+    return render_template(
+        "add_performance.html",
+        students=students
+    )
+
+
+# Edit Performance
+
+@app.route(
+    "/edit-performance/<int:performance_id>",
+    methods=["GET", "POST"]
+)
+@login_required
+def edit_performance(performance_id):
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    if request.method == "POST":
+
+        subject = request.form["subject"].strip()
+        assessment_name = request.form["assessment_name"].strip()
+        total_marks = float(request.form["total_marks"])
+        obtained_marks = float(request.form["obtained_marks"])
+        assessment_date = request.form["assessment_date"]
+
+        if (
+            not subject
+            or not assessment_name
+            or total_marks <= 0
+            or obtained_marks < 0
+            or obtained_marks > total_marks
+        ):
+            connection.close()
+            return "Invalid marks or assessment details.", 400
+
+        cursor.execute("""
+            UPDATE performance
+            SET subject = ?,
+                assessment_name = ?,
+                total_marks = ?,
+                obtained_marks = ?,
+                assessment_date = ?
+            WHERE id = ?
+        """, (
+            subject,
+            assessment_name,
+            total_marks,
+            obtained_marks,
+            assessment_date,
+            performance_id
+        ))
+
+        connection.commit()
+        connection.close()
+
+        return redirect(url_for("performance"))
+
+    cursor.execute("""
+        SELECT *
+        FROM performance
+        WHERE id = ?
+    """, (performance_id,))
+
+    record = cursor.fetchone()
+
+    connection.close()
+
+    if record is None:
+        return "Performance record not found.", 404
+
+    return render_template(
+        "edit_performance.html",
+        record=record
+    )
+
+
+# Delete Performance
+
+@app.route("/delete-performance/<int:performance_id>")
+@login_required
+def delete_performance(performance_id):
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        DELETE FROM performance
+        WHERE id = ?
+    """, (performance_id,))
+
+    connection.commit()
+    connection.close()
+
+    return redirect(url_for("performance"))
 
 
 # Notifications Page

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Student Performance | CampusHub</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<nav class="navbar">
+
+    <div class="logo">🚀 CampusHub</div>
+
+    <div class="nav-links">
+
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('students') }}">Students</a>
+        <a href="{{ url_for('attendance') }}">Attendance</a>
+        <a href="{{ url_for('assignments') }}">Assignments</a>
+        <a href="{{ url_for('analytics') }}">Analytics</a>
+        <a href="{{ url_for('notifications') }}">Notifications 🔔</a>
+        <a href="{{ url_for('profile') }}">Profile</a>
+
+    </div>
+
+</nav>
+
+
+<main class="analytics-page">
+
+    <div class="analytics-header">
+
+        <p class="tagline">CAMPUSHUB ACADEMIC SYSTEM</p>
+
+        <h1>Student Performance 🎓</h1>
+
+        <p>Monitor marks, grades and academic progress.</p>
+
+        <br>
+
+        <a href="{{ url_for('add_performance') }}"
+           class="btn">
+            + Add Student Marks
+        </a>
+
+    </div>
+
+
+    <!-- Statistics -->
+
+    <div class="analytics-grid">
+
+        <div class="analytics-card">
+
+            <div class="analytics-icon">📝</div>
+
+            <p>Total Assessments</p>
+
+            <h2>{{ total_records }}</h2>
+
+        </div>
+
+
+        <div class="analytics-card">
+
+            <div class="analytics-icon">📊</div>
+
+            <p>Average Performance</p>
+
+            <h2>{{ overall_average }}%</h2>
+
+        </div>
+
+
+        <div class="analytics-card">
+
+            <div class="analytics-icon">👨‍🎓</div>
+
+            <p>Students Evaluated</p>
+
+            <h2>{{ student_performance|length }}</h2>
+
+        </div>
+
+
+        <div class="analytics-card">
+
+            <div class="analytics-icon">⚠️</div>
+
+            <p>Low Performance</p>
+
+            <h2>{{ low_performance|length }}</h2>
+
+        </div>
+
+    </div>
+
+
+    <!-- Performance Records -->
+
+    <div class="analytics-section">
+
+        <h2>Assessment Records 📚</h2>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Student</th>
+                        <th>Roll No</th>
+                        <th>Subject</th>
+                        <th>Assessment</th>
+                        <th>Marks</th>
+                        <th>Percentage</th>
+                        <th>Grade</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for record in performance_records %}
+
+                    <tr>
+
+                        <td>{{ record.name }}</td>
+
+                        <td>{{ record.roll_no }}</td>
+
+                        <td>{{ record.subject }}</td>
+
+                        <td>{{ record.assessment_name }}</td>
+
+                        <td>
+                            {{ record.obtained_marks }}/{{ record.total_marks }}
+                        </td>
+
+                        <td>{{ record.percentage }}%</td>
+
+                        <td>{{ record.grade }}</td>
+
+                        <td>{{ record.date }}</td>
+
+                        <td>
+
+                            <a href="{{ url_for(
+                                'edit_performance',
+                                performance_id=record.id
+                            ) }}">Edit</a>
+
+                            |
+
+                            <a href="{{ url_for(
+                                'delete_performance',
+                                performance_id=record.id
+                            ) }}"
+                            onclick="return confirm('Delete this record?')">
+                                Delete
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="9">
+                            No performance records available.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- Student-wise Performance -->
+
+    <div class="analytics-section">
+
+        <h2>Student-wise Performance 📈</h2>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Student</th>
+                        <th>Roll Number</th>
+                        <th>Average</th>
+                        <th>Grade</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for student in student_performance %}
+
+                    <tr>
+
+                        <td>{{ student.name }}</td>
+
+                        <td>{{ student.roll_no }}</td>
+
+                        <td>{{ student.average }}%</td>
+
+                        <td>{{ student.grade }}</td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="4">
+                            No student performance available.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- Low Performance Alerts -->
+
+    <div class="analytics-section">
+
+        <h2>⚠️ Academic Performance Alerts</h2>
+
+        {% if low_performance %}
+
+            {% for student in low_performance %}
+
+            <div class="analytics-card">
+
+                <h3>{{ student.name }}</h3>
+
+                <p>Roll Number: {{ student.roll_no }}</p>
+
+                <h2>{{ student.average }}%</h2>
+
+                <p>
+                    Academic performance is below 40%.
+                    Improvement is recommended.
+                </p>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p>
+                ✅ No students currently have an average below 40%.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+</main>
+
+</body>
+</html>
