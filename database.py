@@ -1,9 +1,13 @@
 import sqlite3
 
 connection = sqlite3.connect("campushub.db")
-
 cursor = connection.cursor()
 
+# Enable foreign key support
+cursor.execute("PRAGMA foreign_keys = ON")
+
+
+# 1. Students Table
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS students (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -15,6 +19,7 @@ CREATE TABLE IF NOT EXISTS students (
 """)
 
 
+# 2. Attendance Table
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS attendance (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,6 +32,7 @@ CREATE TABLE IF NOT EXISTS attendance (
 """)
 
 
+# 3. Assignments Table
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS assignments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,18 +44,39 @@ CREATE TABLE IF NOT EXISTS assignments (
 )
 """)
 
+
+# 4. Users Table
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
-    role TEXT NOT NULL DEFAULT 'student'
+    role TEXT NOT NULL DEFAULT 'student',
+    student_id INTEGER UNIQUE,
+    FOREIGN KEY(student_id) REFERENCES students(id)
 )
 """)
 
+
+# 5. Migrate Existing Users Table
+# Adds student_id without deleting existing user records.
+
+cursor.execute("PRAGMA table_info(users)")
+columns = [column[1] for column in cursor.fetchall()]
+
+if "student_id" not in columns:
+
+    cursor.execute("""
+        ALTER TABLE users
+        ADD COLUMN student_id INTEGER REFERENCES students(id)
+    """)
+
+
+# 6. Admin Account
 cursor.execute("""
-INSERT OR IGNORE INTO users (name, email, password, role)
+INSERT OR IGNORE INTO users
+(name, email, password, role)
 VALUES (?, ?, ?, ?)
 """, (
     "Eshita",
@@ -58,7 +85,8 @@ VALUES (?, ?, ?, ?)
     "admin"
 ))
 
-# Notifications Table
+
+# 7. Notifications Table
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS notifications (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -67,12 +95,12 @@ CREATE TABLE IF NOT EXISTS notifications (
     notification_type TEXT NOT NULL,
     is_read INTEGER DEFAULT 0,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY(user_id) REFERENCES users(id)
 )
 """)
 
 
-# Student Performance Table
+# 8. Student Performance Table
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS performance (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -82,14 +110,14 @@ CREATE TABLE IF NOT EXISTS performance (
     total_marks REAL NOT NULL,
     obtained_marks REAL NOT NULL,
     assessment_date TEXT NOT NULL,
-    FOREIGN KEY (student_id) REFERENCES students(id)
+    FOREIGN KEY(student_id) REFERENCES students(id)
 )
 """)
 
 
+# Save changes
 connection.commit()
 
 connection.close()
 
-print("Database created successfully!")
-
+print("CampusHub database updated successfully!")

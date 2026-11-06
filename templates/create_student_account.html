@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Create Student Account | CampusHub</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .account-container {
+            max-width: 650px;
+            margin: 70px auto;
+            padding: 35px;
+            background: #1e293b;
+            color: white;
+            border-radius: 16px;
+            border: 1px solid #334155;
+        }
+
+        .account-container h1 {
+            margin-bottom: 10px;
+        }
+
+        .account-container p {
+            color: #cbd5e1;
+        }
+
+        .account-form {
+            margin-top: 30px;
+        }
+
+        .account-form label {
+            display: block;
+            margin: 18px 0 8px;
+            font-weight: bold;
+        }
+
+        .account-form input,
+        .account-form select {
+            width: 100%;
+            padding: 13px;
+            border-radius: 8px;
+            border: 1px solid #475569;
+            background: #0f172a;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        .account-form button {
+            margin-top: 25px;
+            width: 100%;
+            padding: 14px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .error-message {
+            color: #fca5a5;
+            background: #450a0a;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<nav class="navbar">
+
+    <div class="logo">🚀 CampusHub</div>
+
+    <div class="nav-links">
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('students') }}">Students</a>
+        <a href="{{ url_for('performance') }}">Performance</a>
+    </div>
+
+</nav>
+
+
+<div class="account-container">
+
+    <h1>🎓 Create Student Account</h1>
+
+    <p>
+        Generate login credentials for an existing CampusHub student.
+    </p>
+
+    {% if error %}
+        <div class="error-message">
+            {{ error }}
+        </div>
+    {% endif %}
+
+    <form method="POST" class="account-form">
+
+        <label>Select Student</label>
+
+        <select name="student_id" required>
+
+            <option value="">Choose a student</option>
+
+            {% for student in students %}
+
+                <option value="{{ student[0] }}">
+                    {{ student[1] }} — {{ student[2] }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+
+        <label>Student Password</label>
+
+        <input
+            type="password"
+            name="password"
+            placeholder="Enter password (minimum 6 characters)"
+            minlength="6"
+            required
+        >
+
+        <button type="submit">
+            Create Student Account
+        </button>
+
+    </form>
+
+</div>
+
+</body>
+</html>

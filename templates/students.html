@@ -48,10 +48,11 @@
         Attendance
     </a>
     
-<a href="{{ url_for('performance') }}">
-    Performance 📊
-</a>
+    <a href="{{ url_for('performance') }}">
+         Performance 📊
+    </a>
 
+    
     <a href="{{ url_for('notifications') }}" class="notification-link">
         🔔 Notifications
 
@@ -122,6 +123,10 @@
 
                 + Add Student
 
+            </a>
+
+            <a href="{{ url_for('create_student_account') }}" class="btn">
+                + Create Student Login
             </a>
 
         </div>

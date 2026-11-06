@@ -7,6 +7,8 @@ app = Flask(__name__)
 
 app.secret_key = "campushub-development-key"
 
+
+# Login Protection
 def login_required(function):
 
     @wraps(function)
@@ -19,6 +21,33 @@ def login_required(function):
 
     return wrapper
 
+# Admin Protection
+def admin_required(function):
+
+    @wraps(function)
+    @login_required
+    def wrapper(*args, **kwargs):
+
+        if session.get("user_role") != "admin":
+            return "Access denied! Admin permission required.", 403
+
+        return function(*args, **kwargs)
+
+    return wrapper
+
+# Student Protection
+def student_required(function):
+
+    @wraps(function)
+    @login_required
+    def wrapper(*args, **kwargs):
+
+        if session.get("user_role") != "student":
+            return "Access denied! Student permission required.", 403
+
+        return function(*args, **kwargs)
+
+    return wrapper
 
 def generate_notifications(user_id):
 
@@ -96,7 +125,7 @@ def login():
         cursor = connection.cursor()
 
         cursor.execute("""
-            SELECT id, name, email, role
+            SELECT id, name, email, role, student_id
             FROM users
             WHERE email = ? AND password = ?
         """, (email, password))
@@ -107,11 +136,17 @@ def login():
 
         if user:
 
+            session.clear()
+
             session["user_id"] = user[0]
             session["user_name"] = user[1]
             session["user_role"] = user[3]
+            session["student_id"] = user[4]
 
-            return redirect(url_for("dashboard"))
+            if user[3] == "admin":
+                return redirect(url_for("dashboard"))
+            elif user[3] == "student":
+                return redirect(url_for("student_dashboard"))
 
         else:
 
@@ -177,6 +212,113 @@ def dashboard():
         total_assignments=total_assignments,
         pending_assignments=pending_assignments
     )
+
+
+
+# =====================================
+# STUDENT DASHBOARD
+# =====================================
+
+@app.route("/student-dashboard")
+@student_required
+def student_dashboard():
+
+    student_id = session.get("student_id")
+
+    if not student_id:
+        return "Student account is not linked to a student record.", 403
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    # Student information
+    cursor.execute("""
+        SELECT name, roll_no, course, email
+        FROM students
+        WHERE id = ?
+    """, (student_id,))
+
+    student = cursor.fetchone()
+
+    if student is None:
+        connection.close()
+        return "Student record not found.", 404
+
+    # Attendance summary
+    cursor.execute("""
+        SELECT
+            COUNT(*),
+            SUM(CASE WHEN status = 'Present' THEN 1 ELSE 0 END),
+            SUM(CASE WHEN status = 'Absent' THEN 1 ELSE 0 END)
+        FROM attendance
+        WHERE student_id = ?
+    """, (student_id,))
+
+    attendance_data = cursor.fetchone()
+
+    total_attendance = attendance_data[0] or 0
+    present_count = attendance_data[1] or 0
+    absent_count = attendance_data[2] or 0
+
+    attendance_percentage = (
+        round((present_count / total_attendance) * 100, 2)
+        if total_attendance > 0 else 0
+    )
+
+    # Performance summary
+    cursor.execute("""
+        SELECT
+            COUNT(*),
+            AVG(obtained_marks * 100.0 / total_marks)
+        FROM performance
+        WHERE student_id = ?
+        AND total_marks > 0
+    """, (student_id,))
+
+    performance_data = cursor.fetchone()
+
+    total_assessments = performance_data[0] or 0
+    average_performance = round(
+        performance_data[1] or 0, 2
+    )
+
+    # Student's performance records
+    cursor.execute("""
+        SELECT subject, assessment_name,
+               obtained_marks, total_marks, assessment_date
+        FROM performance
+        WHERE student_id = ?
+        ORDER BY assessment_date DESC
+    """, (student_id,))
+
+    performance_records = cursor.fetchall()
+
+    # Assignments
+    cursor.execute("""
+        SELECT title, subject, description, due_date, status
+        FROM assignments
+        ORDER BY due_date
+    """)
+
+    assignments = cursor.fetchall()
+
+    connection.close()
+
+    return render_template(
+        "student_dashboard.html",
+        student=student,
+        total_attendance=total_attendance,
+        present_count=present_count,
+        absent_count=absent_count,
+        attendance_percentage=attendance_percentage,
+        total_assessments=total_assessments,
+        average_performance=average_performance,
+        performance_records=performance_records,
+        assignments=assignments
+    )
+
+
+
 
 @app.route("/profile")
 @login_required
@@ -274,6 +416,90 @@ def add_student():
         return redirect(url_for("students"))
 
     return render_template("add_student.html")
+
+
+# =====================================
+# CREATE STUDENT LOGIN ACCOUNT
+# =====================================
+
+@app.route("/create-student-account", methods=["GET", "POST"])
+@admin_required
+def create_student_account():
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    # Get students who do not have login accounts
+    cursor.execute("""
+        SELECT id, name, roll_no, email
+        FROM students
+        WHERE id NOT IN (
+            SELECT student_id
+            FROM users
+            WHERE student_id IS NOT NULL
+        )
+        ORDER BY name
+    """)
+
+    students = cursor.fetchall()
+
+    error = None
+
+    if request.method == "POST":
+
+        student_id = request.form["student_id"]
+        password = request.form["password"]
+
+        if not password or len(password) < 6:
+            error = "Password must contain at least 6 characters."
+
+        else:
+
+            cursor.execute("""
+                SELECT name, email
+                FROM students
+                WHERE id = ?
+            """, (student_id,))
+
+            student = cursor.fetchone()
+
+            if student is None:
+                error = "Student not found."
+
+            elif not student[1]:
+                error = "Please add an email to this student's profile first."
+
+            else:
+
+                try:
+
+                    cursor.execute("""
+                        INSERT INTO users
+                        (name, email, password, role, student_id)
+                        VALUES (?, ?, ?, 'student', ?)
+                    """, (
+                        student[0],
+                        student[1],
+                        password,
+                        student_id
+                    ))
+
+                    connection.commit()
+                    connection.close()
+
+                    return redirect(url_for("students"))
+
+                except sqlite3.IntegrityError:
+                    error = "An account with this email or student already exists."
+
+    connection.close()
+
+    return render_template(
+        "create_student_account.html",
+        students=students,
+        error=error
+    )
+
 
 
 
