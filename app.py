@@ -786,6 +786,11 @@ def assignments():
     )
 
 
+
+# =====================================
+# ADD ASSIGNMENT + STUDENT NOTIFICATIONS
+# =====================================
+
 @app.route("/add-assignment", methods=["GET", "POST"])
 @login_required
 def add_assignment():
@@ -800,6 +805,8 @@ def add_assignment():
         connection = sqlite3.connect("campushub.db")
         cursor = connection.cursor()
 
+
+        # Add the new assignment 
         cursor.execute("""
             INSERT INTO assignments
             (title, subject, description, due_date, status)
@@ -811,6 +818,28 @@ def add_assignment():
             due_date,
             "Pending"
         ))
+
+
+        # Prepare notoification message
+        messsage = (
+            f"New assignment '{title}' has been added "
+            f"for subject '{subject}'. Due date: {due_date}."
+        )
+
+        # Fing all registered students accounts
+        cursor.execute("""
+            SELECT id FROM users
+            WHERE role = 'student'
+        """)
+        student_ids = cursor.fetchall()
+        # Send notification to every student
+        for user in student_users:
+
+            cursor.execute("""
+                INSERT INTO notifications
+                (user_id, message, notification_type)
+                VALUES (?, ?, ?)
+            """, (user[0], message, "assignment"))
 
         connection.commit()
         connection.close()
@@ -1536,3 +1565,4 @@ if __name__ == "__main__":
 
 
 
+        
