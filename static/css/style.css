@@ -1806,3 +1806,192 @@ footer {
     align-items: center;
     justify-content: center;
 }
+
+/* =====================================
+   STUDENTS PAGE DESIGN
+===================================== */
+
+.students-page {
+    min-height: calc(100vh - 75px);
+    padding: 60px 8%;
+
+    background:
+        radial-gradient(
+            circle at top left,
+            #2563eb22,
+            transparent 35%
+        ),
+        #0f172a;
+}
+
+/* Page Header */
+
+.students-page .page-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+
+    margin-bottom: 40px;
+}
+
+.students-page .page-header h1 {
+    font-size: 42px;
+    margin: 10px 0;
+}
+
+.students-page .page-header p:not(.tagline) {
+    color: #94a3b8;
+    font-size: 17px;
+}
+
+/* Search Form */
+
+.students-page .search-form {
+    display: flex;
+    gap: 10px;
+    margin: 0;
+}
+
+.students-page .search-form input {
+    width: 280px;
+    padding: 13px 16px;
+    background: #1e293b;
+    color: white;
+    border: 1px solid #475569;
+    border-radius: 10px;
+}
+
+/* Buttons */
+
+.students-page .start-btn,
+.students-page .btn {
+    display: inline-block;
+    padding: 13px 20px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: linear-gradient(
+        90deg,
+        #2563eb,
+        #9333ea
+    );
+
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+
+    transition: 0.3s;
+}
+
+.students-page .start-btn:hover,
+.students-page .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px #2563eb44;
+}
+
+/* Student Table Container */
+
+.student-table-container {
+    width: 100%;
+    overflow-x: auto;
+
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 18px;
+
+    padding: 20px;
+
+    box-shadow: 0 15px 40px #00000033;
+}
+
+/* Student Table */
+
+.student-table-container table {
+    width: 100%;
+    min-width: 750px;
+    border-collapse: collapse;
+}
+
+.student-table-container th {
+    padding: 17px;
+    text-align: left;
+
+    background: #26364d;
+    color: #93c5fd;
+
+    font-size: 14px;
+}
+
+.student-table-container td {
+    padding: 16px;
+    color: #e2e8f0;
+
+    border-bottom: 1px solid #334155;
+}
+
+.student-table-container tr:hover {
+    background: #263449;
+}
+
+/* Edit and Delete Buttons */
+
+.student-table-container .edit-btn,
+.student-table-container .delete-btn {
+    display: inline-block;
+    padding: 8px 12px;
+
+    border-radius: 8px;
+
+    color: white;
+    text-decoration: none;
+
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.student-table-container .edit-btn {
+    background: #2563eb;
+}
+
+.student-table-container .delete-btn {
+    background: #dc2626;
+}
+
+.student-table-container .edit-btn:hover,
+.student-table-container .delete-btn:hover {
+    opacity: 0.8;
+}
+
+/* Responsive Design */
+
+@media (max-width: 900px) {
+
+    .students-page {
+        padding: 45px 5%;
+    }
+
+    .students-page .page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .students-page .page-header h1 {
+        font-size: 32px;
+    }
+
+    .students-page .search-form {
+        width: 100%;
+    }
+
+    .students-page .search-form input {
+        width: 100%;
+    }
+
+}

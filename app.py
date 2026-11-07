@@ -265,6 +265,17 @@ def student_dashboard():
         if total_attendance > 0 else 0
     )
 
+    # Get student's attendance history
+    cursor.execute("""
+        SELECT date, status
+        FROM attendance
+        WHERE student_id = ?
+        ORDER BY date DESC
+    """, (student_id,))
+
+    attendance_history = cursor.fetchall()
+
+
     # Performance summary
     cursor.execute("""
         SELECT
@@ -308,6 +319,7 @@ def student_dashboard():
         "student_dashboard.html",
         student=student,
         total_attendance=total_attendance,
+        attendance_history=attendance_history,
         present_count=present_count,
         absent_count=absent_count,
         attendance_percentage=attendance_percentage,
@@ -315,6 +327,7 @@ def student_dashboard():
         average_performance=average_performance,
         performance_records=performance_records,
         assignments=assignments
+       
     )
 
 

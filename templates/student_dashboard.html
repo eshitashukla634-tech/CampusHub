@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Student Dashboard | CampusHub</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+
+        .student-page {
+            max-width: 1400px;
+            margin: auto;
+            padding: 45px 30px;
+        }
+
+        .student-header {
+            margin-bottom: 35px;
+        }
+
+        .student-header .tagline {
+            color: #60a5fa;
+            letter-spacing: 3px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .student-header h1 {
+            font-size: 36px;
+            margin: 12px 0;
+        }
+
+        .student-header p {
+            color: #aabbd2;
+        }
+
+        .student-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .student-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 24px;
+            color: white;
+        }
+
+        .student-card p {
+            color: #aabbd2;
+            margin: 12px 0;
+        }
+
+        .student-card h2 {
+            font-size: 30px;
+            margin: 5px 0;
+        }
+
+        .student-icon {
+            font-size: 28px;
+        }
+
+        .student-section {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            color: white;
+        }
+
+        .student-section h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .student-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .info-item {
+            background: #26364d;
+            padding: 18px;
+            border-radius: 10px;
+        }
+
+        .info-item p {
+            color: #93c5fd;
+            margin-bottom: 8px;
+        }
+
+        .info-item h3 {
+            margin: 0;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .student-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        .student-table th {
+            background: #26364d;
+            color: #93c5fd;
+            padding: 14px;
+            text-align: left;
+        }
+
+        .student-table td {
+            padding: 14px;
+            border-bottom: 1px solid #334155;
+            color: #e2e8f0;
+        }
+
+        .student-table tr:hover {
+            background: #26364d;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 320px;
+        }
+
+        .status-pending {
+            color: #fbbf24;
+            font-weight: bold;
+        }
+
+        .status-completed {
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        .empty-message {
+            color: #94a3b8;
+            padding: 15px 0;
+        }
+
+        .logout-btn {
+            display: inline-block;
+            padding: 10px 18px;
+            background: #dc2626;
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+        }
+
+        @media(max-width: 900px) {
+
+            .student-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+        }
+
+        @media(max-width: 550px) {
+
+            .student-page {
+                padding: 25px 15px;
+            }
+
+            .student-grid,
+            .student-info {
+                grid-template-columns: 1fr;
+            }
+
+            .student-header h1 {
+                font-size: 27px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<nav class="navbar">
+
+    <div class="logo">
+        🚀 CampusHub
+    </div>
+
+    <div class="nav-links">
+
+        <a href="{{ url_for('student_dashboard') }}">
+            Dashboard
+        </a>
+
+        <a href="#attendance">
+            My Attendance
+        </a>
+
+        <a href="#performance">
+            My Performance
+        </a>
+
+        <a href="#assignments">
+            Assignments
+        </a>
+
+        <a href="{{ url_for('logout') }}">
+            Logout
+        </a>
+
+
+        <a href="#attendance-history">
+            Attendance History
+        </a>
+
+    </div>
+
+</nav>
+
+
+<main class="student-page">
+
+
+    <!-- WELCOME HEADER -->
+
+    <div class="student-header">
+
+        <p class="tagline">
+            CAMPUSHUB STUDENT PORTAL
+        </p>
+
+        <h1>
+            Welcome back, {{ student[0] }}! 👋
+        </h1>
+
+        <p>
+            Track your attendance, academic performance
+            and assignments from one place.
+        </p>
+
+    </div>
+
+
+    <!-- STUDENT STATISTICS -->
+
+    <div class="student-grid">
+
+        <div class="student-card">
+
+            <div class="student-icon">📅</div>
+
+            <p>Attendance Percentage</p>
+
+            <h2>{{ attendance_percentage }}%</h2>
+
+        </div>
+
+
+        <div class="student-card">
+
+            <div class="student-icon">✅</div>
+
+            <p>Present Days</p>
+
+            <h2>{{ present_count }}</h2>
+
+        </div>
+
+
+        <div class="student-card">
+
+            <div class="student-icon">📊</div>
+
+            <p>Average Performance</p>
+
+            <h2>{{ average_performance }}%</h2>
+
+        </div>
+
+
+        <div class="student-card">
+
+            <div class="student-icon">📝</div>
+
+            <p>Total Assessments</p>
+
+            <h2>{{ total_assessments }}</h2>
+
+        </div>
+
+    </div>
+
+
+    <!-- PERSONAL PROFILE -->
+
+    <div class="student-section">
+
+        <h2>👨‍🎓 My Profile</h2>
+
+        <div class="student-info">
+
+            <div class="info-item">
+
+                <p>Full Name</p>
+
+                <h3>{{ student[0] }}</h3>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <p>Roll Number</p>
+
+                <h3>{{ student[1] }}</h3>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <p>Course</p>
+
+                <h3>{{ student[2] }}</h3>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <p>Email</p>
+
+                <h3>{{ student[3] or 'Not provided' }}</h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ATTENDANCE -->
+
+    <div class="student-section" id="attendance">
+
+        <h2>📅 My Attendance</h2>
+
+        <div class="student-info">
+
+            <div class="info-item">
+
+                <p>Total Attendance Records</p>
+
+                <h3>{{ total_attendance }}</h3>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <p>Absent Days</p>
+
+                <h3>{{ absent_count }}</h3>
+
+            </div>
+
+        </div>
+
+        <br>
+
+        {% if attendance_percentage < 75 and total_attendance > 0 %}
+
+            <p style="color:#fca5a5;">
+
+                ⚠️ Your attendance is below 75%.
+                Please improve your attendance.
+
+            </p>
+
+        {% else %}
+
+            <p style="color:#4ade80;">
+
+                ✅ Keep maintaining your attendance!
+
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- PERFORMANCE -->
+
+    <div class="student-section" id="performance">
+
+        <h2>📊 My Academic Performance</h2>
+
+        {% if performance_records %}
+
+            <div class="chart-container">
+
+                <canvas id="performanceChart"></canvas>
+
+            </div>
+
+            <br>
+
+            <div class="table-container">
+
+                <table class="student-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Subject</th>
+                            <th>Assessment</th>
+                            <th>Marks</th>
+                            <th>Percentage</th>
+                            <th>Date</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for record in performance_records %}
+
+                        <tr>
+
+                            <td>{{ record[0] }}</td>
+
+                            <td>{{ record[1] }}</td>
+
+                            <td>
+                                {{ record[2] }}/{{ record[3] }}
+                            </td>
+
+                            <td>
+
+                                {% if record[3] > 0 %}
+
+                                    {{ "%.2f"|format(record[2] * 100 / record[3]) }}%
+
+                                {% else %}
+
+                                    0%
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>{{ record[4] }}</td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <p class="empty-message">
+                No performance records available yet.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- ASSIGNMENTS -->
+
+    <div class="student-section" id="assignments">
+
+        <h2>📚 My Assignments</h2>
+
+        <div class="table-container">
+
+            <table class="student-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Assignment</th>
+                        <th>Subject</th>
+                        <th>Description</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for assignment in assignments %}
+
+                    <tr>
+
+                        <td>{{ assignment[0] }}</td>
+
+                        <td>{{ assignment[1] }}</td>
+
+                        <td>{{ assignment[2] or '-' }}</td>
+
+                        <td>{{ assignment[3] }}</td>
+
+                        <td>
+
+                            {% if assignment[4] == 'Completed' %}
+
+                                <span class="status-completed">
+                                    Completed
+                                </span>
+
+                            {% else %}
+
+                                <span class="status-pending">
+                                    Pending
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+
+                        <td colspan="5" class="empty-message">
+                            No assignments available.
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- LOGOUT -->
+
+    <div style="text-align:center; margin:30px;">
+
+        <a href="{{ url_for('logout') }}" class="logout-btn">
+            Logout
+        </a>
+
+    </div>
+
+</main>
+
+
+<!-- PERFORMANCE CHART DATA -->
+
+{% if performance_records %}
+
+<div id="performance-chart-data" hidden>
+
+    {% for record in performance_records %}
+
+    <span
+        data-label="{{ record[1] }}"
+        data-obtained="{{ record[2] }}"
+        data-total="{{ record[3] }}">
+    </span>
+
+    {% endfor %}
+
+</div>
+
+
+<!-- PERFORMANCE CHART JAVASCRIPT -->
+
+<script>
+
+    const chartElements = document.querySelectorAll(
+        "#performance-chart-data span"
+    );
+
+    const performanceLabels = [];
+    const performanceValues = [];
+
+
+    chartElements.forEach(function(element) {
+
+        const label = element.dataset.label;
+
+        const obtained = Number(
+            element.dataset.obtained
+        );
+
+        const total = Number(
+            element.dataset.total
+        );
+
+        performanceLabels.push(label);
+
+        let percentage = 0;
+
+        if (total > 0) {
+
+            percentage = (obtained / total) * 100;
+
+        }
+
+        performanceValues.push(
+            Number(percentage.toFixed(2))
+        );
+
+    });
+
+
+    const chartCanvas = document.getElementById(
+        "performanceChart"
+    );
+
+
+    if (chartCanvas) {
+
+        new Chart(chartCanvas, {
+
+            type: "bar",
+
+            data: {
+
+                labels: performanceLabels,
+
+                datasets: [{
+
+                    label: "Assessment Percentage",
+
+                    data: performanceValues,
+
+                    backgroundColor: "#3b82f6",
+
+                    borderRadius: 8
+
+                }]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                scales: {
+
+                    y: {
+
+                        beginAtZero: true,
+
+                        max: 100,
+
+                        ticks: {
+                            color: "#cbd5e1"
+                        },
+
+                        grid: {
+                            color: "#334155"
+                        }
+
+                    },
+
+                    x: {
+
+                        ticks: {
+                            color: "#cbd5e1"
+                        },
+
+                        grid: {
+                            display: false
+                        }
+
+                    }
+
+                },
+
+                plugins: {
+
+                    legend: {
+
+                        labels: {
+                            color: "#ffffff"
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+</script>
+
+{% endif %}
+
+
+</body>
+
+</html>
+
+
+
+<!-- ATTENDANCE HISTORY -->
+
+<div class="student-section" id="attendance-history">
+
+    <h2>📅 My Attendance History</h2>
+
+    <div class="table-container">
+
+        <table class="student-table">
+
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Attendance Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for record in attendance_history %}
+
+                <tr>
+
+                    <td>{{ record[0] }}</td>
+
+                    <td>
+
+                        {% if record[1] == 'Present' %}
+
+                            <span class="status-completed">
+                                Present
+                            </span>
+
+                        {% else %}
+
+                            <span style="color:#f87171; font-weight:bold;">
+                                Absent
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+                    <td colspan="2" class="empty-message">
+                        No attendance records available yet.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
