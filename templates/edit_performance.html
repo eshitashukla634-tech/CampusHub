@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Performance | CampusHub</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<nav class="navbar">
+
+    <div class="logo">🚀 CampusHub</div>
+
+    <div class="nav-links">
+
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('performance') }}">Performance</a>
+
+    </div>
+
+</nav>
+
+
+<main class="form-page">
+
+    <div class="form-container">
+
+        <h1>Edit Performance ✏️</h1>
+
+        <form method="POST">
+
+            <label>Subject</label>
+
+            <input type="text"
+                   name="subject"
+                   value="{{ record[2] }}"
+                   required>
+
+
+            <label>Assessment Name</label>
+
+            <input type="text"
+                   name="assessment_name"
+                   value="{{ record[3] }}"
+                   required>
+
+
+            <label>Total Marks</label>
+
+            <input type="number"
+                   name="total_marks"
+                   value="{{ record[4] }}"
+                   min="0.01"
+                   step="any"
+                   required>
+
+
+            <label>Obtained Marks</label>
+
+            <input type="number"
+                   name="obtained_marks"
+                   value="{{ record[5] }}"
+                   min="0"
+                   step="any"
+                   required>
+
+
+            <label>Assessment Date</label>
+
+            <input type="date"
+                   name="assessment_date"
+                   value="{{ record[6] }}"
+                   required>
+
+
+            <button type="submit">
+                Update Performance
+            </button>
+
+        </form>
+
+    </div>
+
+</main>
+
+</body>
+</html>

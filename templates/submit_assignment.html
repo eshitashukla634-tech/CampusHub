@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Assignment | CampusHub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .submission-box {
+            max-width: 650px;
+            margin: 50px auto;
+            padding: 35px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 18px;
+            color: white;
+        }
+
+        .submission-box h1 {
+            margin-bottom: 10px;
+        }
+
+        .submission-box p {
+            color: #aabbd2;
+            margin-bottom: 25px;
+        }
+
+        .submission-box label {
+            display: block;
+            margin: 18px 0 8px;
+            color: #93c5fd;
+        }
+
+        .submission-box input,
+        .submission-box select,
+        .submission-box textarea {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            background: #26364d;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        .submission-box button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 14px;
+            border: none;
+            border-radius: 9px;
+            background: #2563eb;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .submission-box button:hover {
+            background: #1d4ed8;
+        }
+
+        .error-message {
+            background: #7f1d1d;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #93c5fd;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <h2>🚀 CampusHub</h2>
+
+    <div>
+        <a href="{{ url_for('student_dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('notifications') }}">🔔 Notifications</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+</nav>
+
+<main class="container">
+
+    <section class="submission-box">
+
+        <h1>📤 Submit Assignment</h1>
+
+        <p>Upload your completed assignment before the deadline.</p>
+
+        {% if error %}
+            <div class="error-message">
+                {{ error }}
+            </div>
+        {% endif %}
+
+        {% if assignments %}
+
+        <form method="POST"
+              enctype="multipart/form-data">
+
+            <label>Select Assignment</label>
+
+            <select name="assignment_id" required>
+                <option value="">Choose an assignment</option>
+
+                {% for assignment in assignments %}
+                    <option value="{{ assignment[0] }}">
+                        {{ assignment[1] }} - {{ assignment[2] }}
+                        (Due: {{ assignment[3] }})
+                    </option>
+                {% endfor %}
+
+            </select>
+
+            <label>Upload Assignment File</label>
+
+            <input type="file"
+                   name="file"
+                   accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.zip"
+                   required>
+
+            <label>Submission Description</label>
+
+            <textarea name="description"
+                      rows="5"
+                      placeholder="Write a short description of your submission..."></textarea>
+
+            <button type="submit">
+                Submit Assignment
+            </button>
+
+        </form>
+
+        {% else %}
+
+            <p>🎉 No pending assignments are available right now.</p>
+
+        {% endif %}
+
+        <a href="{{ url_for('student_dashboard') }}" class="back-link">
+            ← Back to Dashboard
+        </a>
+
+    </section>
+
+</main>
+
+</body>
+</html>

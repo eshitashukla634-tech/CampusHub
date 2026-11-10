@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Assignment Submissions | CampusHub</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .admin-submission-section {
+            max-width: 1250px;
+            margin: 50px auto;
+        }
+
+        .submission-table-container {
+            overflow-x: auto;
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #334155;
+        }
+
+        .submission-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 850px;
+            color: white;
+        }
+
+        .submission-table th {
+            padding: 16px;
+            text-align: left;
+            color: #93c5fd;
+            background: #26364d;
+        }
+
+        .submission-table td {
+            padding: 16px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .submission-table tr:hover {
+            background: #26364d;
+        }
+
+        .download-button {
+            display: inline-block;
+            padding: 8px 13px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 7px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: #854d0e;
+            color: #fef08a;
+        }
+
+        .reviewed {
+            background: #166534;
+            color: #bbf7d0;
+        }
+
+        .empty-state {
+            text-align: center;
+            background: #1e293b;
+            padding: 45px;
+            border-radius: 15px;
+            color: #cbd5e1;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar">
+
+    <h2>🚀 CampusHub</h2>
+
+    <div>
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('students') }}">Students</a>
+        <a href="{{ url_for('assignments') }}">Assignments</a>
+        <a href="{{ url_for('admin_submissions') }}">Submissions</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+
+</nav>
+
+<main class="container admin-submission-section">
+
+    <section class="page-header">
+
+        <p class="section-label">ADMIN MANAGEMENT</p>
+
+        <h1>📥 Assignment Submissions</h1>
+
+        <p>View student submissions and download their assignment files.</p>
+
+    </section>
+
+    {% if submissions %}
+
+        <div class="submission-table-container">
+
+            <table class="submission-table">
+
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Roll Number</th>
+                        <th>Assignment</th>
+                        <th>File</th>
+                        <th>Submitted At</th>
+                        <th>Status</th>
+                        <th>Feedback</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for submission in submissions %}
+
+                        <tr>
+
+                            <td>{{ submission[1] }}</td>
+
+                            <td>{{ submission[2] }}</td>
+
+                            <td>{{ submission[3] }}</td>
+
+                            <td>
+                                <a class="download-button"
+                                   href="{{ url_for('download_submission', submission_id=submission[0]) }}">
+                                    ⬇ Download
+                                </a>
+                            </td>
+
+                            <td>{{ submission[5] }}</td>
+
+                            <td>
+
+                                {% if submission[6] == 'Reviewed' %}
+                                    <span class="status-badge reviewed">
+                                        ✓ Reviewed
+                                    </span>
+                                {% else %}
+                                    <span class="status-badge">
+                                        {{ submission[6] }}
+                                    </span>
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+                                {{ submission[7] if submission[7] else 'No feedback' }}
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+
+            <h2>📭 No submissions received yet!</h2>
+
+            <p>Student assignment submissions will appear here.</p>
+
+        </div>
+
+    {% endif %}
+
+</main>
+
+</body>
+</html>

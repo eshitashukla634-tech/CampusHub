@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Submissions | CampusHub</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .submission-section {
+            max-width: 1150px;
+            margin: 50px auto;
+        }
+
+        .submission-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 18px;
+            color: white;
+        }
+
+        .submission-card h3 {
+            color: #60a5fa;
+        }
+
+        .submission-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 18px;
+        }
+
+        .submission-details p {
+            color: #cbd5e1;
+        }
+
+        .submission-status {
+            display: inline-block;
+            padding: 7px 14px;
+            border-radius: 20px;
+            background: #854d0e;
+            color: #fef08a;
+            font-weight: bold;
+        }
+
+        .reviewed {
+            background: #166534;
+            color: #bbf7d0;
+        }
+
+        .empty-state {
+            text-align: center;
+            background: #1e293b;
+            padding: 45px;
+            border-radius: 15px;
+            color: #cbd5e1;
+        }
+
+        @media(max-width: 600px) {
+            .submission-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <h2>🚀 CampusHub</h2>
+
+    <div>
+        <a href="{{ url_for('student_dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('notifications') }}">🔔 Notifications</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+</nav>
+
+<main class="container submission-section">
+
+    <section class="page-header">
+        <p class="section-label">STUDENT PORTAL</p>
+        <h1>📤 My Submissions</h1>
+        <p>Track your submitted assignments and admin feedback.</p>
+    </section>
+
+    {% if submissions %}
+
+        {% for submission in submissions %}
+
+            <div class="submission-card">
+
+                <h3>{{ submission[1] }}</h3>
+
+                <div class="submission-details">
+
+                    <p>
+                        📁 <strong>File:</strong>
+                        {{ submission[2] }}
+                    </p>
+
+                    <p>
+                        📅 <strong>Submitted:</strong>
+                        {{ submission[3] }}
+                    </p>
+
+                    <p>
+                        📌 <strong>Status:</strong>
+
+                        {% if submission[4] == 'Reviewed' %}
+                            <span class="submission-status reviewed">
+                                ✓ Reviewed
+                            </span>
+                        {% else %}
+                            <span class="submission-status">
+                                {{ submission[4] }}
+                            </span>
+                        {% endif %}
+                    </p>
+
+                    <p>
+                        💬 <strong>Admin Feedback:</strong>
+
+                        {{ submission[5] if submission[5] else 'No feedback yet.' }}
+                    </p>
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <div class="empty-state">
+            <h2>📭 No submissions yet!</h2>
+            <p>You haven't submitted any assignments.</p>
+
+            <a href="{{ url_for('submit_assignment') }}">
+                Submit Your First Assignment
+            </a>
+        </div>
+
+    {% endif %}
+
+</main>
+
+</body>
+</html>

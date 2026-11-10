@@ -1,11 +1,38 @@
-from flask import Flask, render_template, request, redirect, url_for,session
+from flask import Flask, render_template, request, redirect, url_for,session, send_from_directory
 from functools import wraps
+from werkzeug.utils import secure_filename
 import sqlite3
+import os
 from datetime import date, timedelta
 
 app = Flask(__name__)
 
 app.secret_key = "campushub-development-key"
+
+# =====================================
+# ASSIGNMENT FILE UPLOAD SETTINGS
+# =====================================
+
+UPLOAD_FOLDER = os.path.join(app.root_path, "uploads")
+
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
+
+ALLOWED_EXTENSIONS = {
+    "pdf", "doc", "docx",
+    "ppt", "pptx",
+    "txt", "zip"
+}
+
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+
+def allowed_file(filename):
+
+    return (
+        "." in filename
+        and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+    )
 
 
 # Login Protection
@@ -330,7 +357,242 @@ def student_dashboard():
        
     )
 
+# =====================================
+# STUDENT ASSIGNMENT SUBMISSION
+# =====================================
 
+@app.route("/submit-assignment", methods=["GET", "POST"])
+@student_required
+def submit_assignment():
+
+    student_id = session.get("student_id")
+
+    if not student_id:
+        return "Student account is not linked.", 403
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    # Get available assignments
+    cursor.execute("""
+        SELECT id, title, subject, due_date
+        FROM assignments
+        WHERE status = 'Pending'
+        ORDER BY due_date
+    """)
+
+    assignments = cursor.fetchall()
+
+    error = None
+
+    if request.method == "POST":
+
+        assignment_id = request.form.get("assignment_id")
+        description = request.form.get("description", "").strip()
+        uploaded_file = request.files.get("file")
+
+        if not assignment_id or not uploaded_file:
+            error = "Please select an assignment and upload a file."
+
+        elif uploaded_file.filename == "":
+            error = "Please choose a file."
+
+        elif not allowed_file(uploaded_file.filename):
+            error = "Invalid file type. Upload PDF, DOC, DOCX, PPT, PPTX, TXT or ZIP."
+
+        else:
+
+            # Check assignment exists and is not overdue
+            cursor.execute("""
+                SELECT due_date
+                FROM assignments
+                WHERE id = ?
+                AND status = 'Pending'
+            """, (assignment_id,))
+
+            assignment = cursor.fetchone()
+
+            if assignment is None:
+                error = "Assignment not found or already completed."
+
+            elif date.fromisoformat(assignment[0]) < date.today():
+                error = "The deadline for this assignment has passed."
+
+            else:
+
+                # Check whether the student has already submitted
+                cursor.execute("""
+                    SELECT id
+                    FROM submissions
+                    WHERE assignment_id = ?
+                    AND student_id = ?
+                """, (assignment_id, student_id))
+
+                existing_submission = cursor.fetchone()
+
+                if existing_submission:
+                    error = "You have already submitted this assignment."
+
+                else:
+
+                    filename = secure_filename(uploaded_file.filename)
+
+                    # Give every uploaded file a unique name
+                    unique_filename = (
+                        f"{student_id}_{assignment_id}_"
+                        f"{filename}"
+                    )
+
+                    file_path = os.path.join(
+                        app.config["UPLOAD_FOLDER"],
+                        unique_filename
+                    )
+
+                    uploaded_file.save(file_path)
+
+                    cursor.execute("""
+                        INSERT INTO submissions
+                        (
+                            assignment_id,
+                            student_id,
+                            file_name,
+                            file_path,
+                            description,
+                            status
+                        )
+                        VALUES (?, ?, ?, ?, ?, ?)
+                    """, (
+                        assignment_id,
+                        student_id,
+                        filename,
+                        unique_filename,
+                        description,
+                        "Submitted"
+                    ))
+
+                    connection.commit()
+                    connection.close()
+
+                    return redirect(
+                        url_for("my_submissions")
+                    )
+
+    connection.close()
+
+    return render_template(
+        "submit_assignment.html",
+        assignments=assignments,
+        error=error
+    )
+
+
+# =====================================
+# STUDENT: MY SUBMISSIONS
+# =====================================
+
+@app.route("/my-submissions")
+@student_required
+def my_submissions():
+
+    student_id = session.get("student_id")
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT
+            submissions.id,
+            assignments.title,
+            submissions.file_name,
+            submissions.submitted_at,
+            submissions.status,
+            submissions.feedback
+        FROM submissions
+        JOIN assignments
+        ON submissions.assignment_id = assignments.id
+        WHERE submissions.student_id = ?
+        ORDER BY submissions.submitted_at DESC
+    """, (student_id,))
+
+    submissions = cursor.fetchall()
+
+    connection.close()
+
+    return render_template(
+        "my_submissions.html",
+        submissions=submissions
+    )
+
+
+# =====================================
+# ADMIN: VIEW ALL SUBMISSIONS
+# =====================================
+
+@app.route("/admin-submissions")
+@admin_required
+def admin_submissions():
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT
+            submissions.id,
+            students.name,
+            students.roll_no,
+            assignments.title,
+            submissions.file_name,
+            submissions.submitted_at,
+            submissions.status,
+            submissions.feedback
+        FROM submissions
+        JOIN students
+        ON submissions.student_id = students.id
+        JOIN assignments
+        ON submissions.assignment_id = assignments.id
+        ORDER BY submissions.submitted_at DESC
+    """)
+
+    submissions = cursor.fetchall()
+
+    connection.close()
+
+    return render_template(
+        "admin_submissions.html",
+        submissions=submissions
+    )
+
+
+# =====================================
+# ADMIN: DOWNLOAD SUBMITTED FILE
+# =====================================
+
+@app.route("/download-submission/<int:submission_id>")
+@admin_required
+def download_submission(submission_id):
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT file_path, file_name
+        FROM submissions
+        WHERE id = ?
+    """, (submission_id,))
+
+    submission = cursor.fetchone()
+
+    connection.close()
+
+    if submission is None:
+        return "Submission not found.", 404
+
+    return send_from_directory(
+        app.config["UPLOAD_FOLDER"],
+        submission[0],
+        as_attachment=True,
+        download_name=submission[1]
+    )
 
 
 @app.route("/profile")
@@ -1565,4 +1827,3 @@ if __name__ == "__main__":
 
 
 
-        

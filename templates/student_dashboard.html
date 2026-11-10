@@ -502,6 +502,18 @@
 
         <h2>📚 My Assignments</h2>
 
+        <a href="{{ url_for('submit_assignment') }}"
+            class="btn btn-primary"
+            style="display:inline-block; margin-bottom:20px;">
+                📤 Submit Assignment
+        </a>
+
+        <a href="{{ url_for('my_submissions') }}"
+            class="btn btn-primary"
+            style="display:inline-block; margin-bottom:20px;">
+                📋 My Submissions
+        </a>
+
         <div class="table-container">
 
             <table class="student-table">

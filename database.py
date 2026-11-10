@@ -114,6 +114,32 @@ CREATE TABLE IF NOT EXISTS performance (
 )
 """)
 
+# 9. Student Assignment Submissions Table
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS submissions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    assignment_id INTEGER NOT NULL,
+    student_id INTEGER NOT NULL,
+
+    file_name TEXT NOT NULL,
+    file_path TEXT NOT NULL,
+
+    description TEXT,
+
+    submitted_at TEXT DEFAULT CURRENT_TIMESTAMP,
+
+    status TEXT NOT NULL DEFAULT 'Submitted',
+
+    feedback TEXT,
+
+    FOREIGN KEY(assignment_id) REFERENCES assignments(id),
+    FOREIGN KEY(student_id) REFERENCES students(id),
+
+    UNIQUE(assignment_id, student_id)
+)
+""")
 
 # Save changes
 connection.commit()
