@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Review Submission | CampusHub</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .review-container {
+            max-width: 750px;
+            margin: 50px auto;
+            padding: 30px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            color: white;
+        }
+
+        .review-container h1 {
+            color: #60a5fa;
+        }
+
+        .review-info {
+            margin: 25px 0;
+            padding: 20px;
+            background: #26364d;
+            border-radius: 10px;
+        }
+
+        .review-info p {
+            margin: 12px 0;
+            color: #cbd5e1;
+        }
+
+        .review-container label {
+            display: block;
+            margin: 20px 0 8px;
+            color: #93c5fd;
+        }
+
+        .review-container select,
+        .review-container textarea {
+            width: 100%;
+            padding: 13px;
+            border-radius: 8px;
+            border: 1px solid #475569;
+            background: #26364d;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        .review-container textarea {
+            min-height: 120px;
+        }
+
+        .review-container button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 25px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .review-container button:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <h2>🚀 CampusHub</h2>
+
+    <div>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('admin_submissions') }}">Submissions</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+</nav>
+
+<main class="container">
+
+    <section class="review-container">
+
+        <h1>📝 Review Assignment</h1>
+
+        <div class="review-info">
+
+            <p><strong>Student:</strong> {{ submission[1] }}</p>
+
+            <p><strong>Roll Number:</strong> {{ submission[2] }}</p>
+
+            <p><strong>Assignment:</strong> {{ submission[3] }}</p>
+
+            <p><strong>File:</strong> {{ submission[4] }}</p>
+
+            <p><strong>Submitted:</strong> {{ submission[5] }}</p>
+
+            <p><strong>Current Status:</strong> {{ submission[6] }}</p>
+
+            <p>
+                <strong>Previous Feedback:</strong>
+                {{ submission[7] if submission[7] else 'No feedback yet.' }}
+            </p>
+
+            <a href="{{ url_for('download_submission',
+                                submission_id=submission[0]) }}">
+                ⬇ Download Student Assignment
+            </a>
+
+        </div>
+
+        <form method="POST">
+
+            <label>Select Review Status</label>
+
+            <select name="status" required>
+
+                <option value="">Choose Status</option>
+
+                <option value="Accepted">Accept Assignment</option>
+
+                <option value="Rejected">Reject Assignment</option>
+
+            </select>
+
+            <label>Admin Feedback</label>
+
+            <textarea name="feedback"
+                      placeholder="Write feedback for the student..."></textarea>
+
+            <button type="submit">
+                Submit Review
+            </button>
+
+        </form>
+
+    </section>
+
+</main>
+
+</body>
+</html>

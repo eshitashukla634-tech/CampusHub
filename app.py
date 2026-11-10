@@ -595,6 +595,126 @@ def download_submission(submission_id):
     )
 
 
+# =====================================
+# ADMIN: REVIEW STUDENT SUBMISSION
+# =====================================
+
+@app.route("/review-submission/<int:submission_id>", methods=["GET", "POST"])
+@admin_required
+def review_submission(submission_id):
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT
+            submissions.id,
+            students.name,
+            students.roll_no,
+            assignments.title,
+            submissions.file_name,
+            submissions.submitted_at,
+            submissions.status,
+            submissions.feedback
+        FROM submissions
+        JOIN students
+        ON submissions.student_id = students.id
+        JOIN assignments
+        ON submissions.assignment_id = assignments.id
+        WHERE submissions.id = ?
+    """, (submission_id,))
+
+    submission = cursor.fetchone()
+
+    if submission is None:
+        connection.close()
+        return "Submission not found.", 404
+
+    if request.method == "POST":
+
+        status = request.form.get("status")
+        feedback = request.form.get("feedback", "").strip()
+
+        if status not in ["Accepted", "Rejected"]:
+            connection.close()
+            return "Invalid submission status.", 400
+
+        cursor.execute("""
+            UPDATE submissions
+            SET status = ?, feedback = ?
+            WHERE id = ?
+        """, (status, feedback, submission_id))
+
+        # Find the student's login account
+        cursor.execute("""
+            SELECT id
+            FROM users
+            WHERE student_id = ?
+            AND role = 'student'
+        """, (None,))
+
+        # Get student ID from the submission
+        cursor.execute("""
+            SELECT student_id, assignment_id
+            FROM submissions
+            WHERE id = ?
+        """, (submission_id,))
+
+        student_data = cursor.fetchone()
+
+        if student_data:
+
+            student_id = student_data[0]
+            assignment_id = student_data[1]
+
+            cursor.execute("""
+                SELECT id
+                FROM users
+                WHERE student_id = ?
+                AND role = 'student'
+            """, (student_id,))
+
+            student_user = cursor.fetchone()
+
+            cursor.execute("""
+                SELECT title
+                FROM assignments
+                WHERE id = ?
+            """, (assignment_id,))
+
+            assignment = cursor.fetchone()
+
+            if student_user and assignment:
+
+                message = (
+                    f"Your submission for '{assignment[0]}' "
+                    f"has been {status.lower()}. "
+                    f"Admin feedback: {feedback or 'No feedback provided.'}"
+                )
+
+                cursor.execute("""
+                    INSERT INTO notifications
+                    (user_id, message, notification_type)
+                    VALUES (?, ?, ?)
+                """, (
+                    student_user[0],
+                    message,
+                    "Submission Review"
+                ))
+
+        connection.commit()
+        connection.close()
+
+        return redirect(url_for("admin_submissions"))
+
+    connection.close()
+
+    return render_template(
+        "review_submission.html",
+        submission=submission
+    )
+
+
 @app.route("/profile")
 @login_required
 def profile():
@@ -1052,9 +1172,8 @@ def assignments():
 # =====================================
 # ADD ASSIGNMENT + STUDENT NOTIFICATIONS
 # =====================================
-
 @app.route("/add-assignment", methods=["GET", "POST"])
-@login_required
+@admin_required
 def add_assignment():
 
     if request.method == "POST":
@@ -1067,41 +1186,32 @@ def add_assignment():
         connection = sqlite3.connect("campushub.db")
         cursor = connection.cursor()
 
-
-        # Add the new assignment 
         cursor.execute("""
             INSERT INTO assignments
             (title, subject, description, due_date, status)
             VALUES (?, ?, ?, ?, ?)
-        """, (
-            title,
-            subject,
-            description,
-            due_date,
-            "Pending"
-        ))
+        """, (title, subject, description, due_date, "Pending"))
 
-
-        # Prepare notoification message
-        messsage = (
+        message = (
             f"New assignment '{title}' has been added "
-            f"for subject '{subject}'. Due date: {due_date}."
+            f"for {subject}. Due date: {due_date}."
         )
 
-        # Fing all registered students accounts
         cursor.execute("""
-            SELECT id FROM users
+            SELECT id
+            FROM users
             WHERE role = 'student'
         """)
-        student_ids = cursor.fetchall()
-        # Send notification to every student
+
+        student_users = cursor.fetchall()
+
         for user in student_users:
 
             cursor.execute("""
                 INSERT INTO notifications
                 (user_id, message, notification_type)
                 VALUES (?, ?, ?)
-            """, (user[0], message, "assignment"))
+            """, (user[0], message, "New Assignment"))
 
         connection.commit()
         connection.close()
@@ -1109,6 +1219,7 @@ def add_assignment():
         return redirect(url_for("assignments"))
 
     return render_template("add_assignment.html")
+
 
 
 @app.route("/edit-assignment/<int:assignment_id>", methods=["GET", "POST"])
