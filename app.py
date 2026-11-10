@@ -523,6 +523,127 @@ def my_submissions():
         submissions=submissions
     )
 
+# =====================================
+# STUDENT: RESUBMIT REJECTED ASSIGNMENT
+# =====================================
+
+@app.route("/resubmit-assignment/<int:submission_id>",
+           methods=["GET", "POST"])
+@student_required
+def resubmit_assignment(submission_id):
+
+    student_id = session.get("student_id")
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    # Verify that this submission belongs to the logged-in student
+    cursor.execute("""
+        SELECT id, assignment_id, status
+        FROM submissions
+        WHERE id = ?
+        AND student_id = ?
+    """, (submission_id, student_id))
+
+    submission = cursor.fetchone()
+
+    if submission is None:
+        connection.close()
+        return "Submission not found.", 404
+
+    if submission[2] != "Rejected":
+        connection.close()
+        return "Only rejected assignments can be resubmitted.", 403
+
+    error = None
+
+    if request.method == "POST":
+
+        uploaded_file = request.files.get("file")
+        description = request.form.get("description", "").strip()
+
+        if not uploaded_file or uploaded_file.filename == "":
+            error = "Please select a file."
+
+        elif not allowed_file(uploaded_file.filename):
+            error = "Invalid file type."
+
+        else:
+
+            filename = secure_filename(uploaded_file.filename)
+
+            # Calculate next attempt number
+            cursor.execute("""
+                SELECT COALESCE(MAX(attempt_number), 0)
+                FROM submission_attempts
+                WHERE submission_id = ?
+            """, (submission_id,))
+
+            attempt_number = cursor.fetchone()[0] + 1
+
+            unique_filename = (
+                f"{student_id}_{submission[1]}_"
+                f"attempt{attempt_number}_{filename}"
+            )
+
+            file_path = os.path.join(
+                app.config["UPLOAD_FOLDER"],
+                unique_filename
+            )
+
+            uploaded_file.save(file_path)
+
+            # Save the new attempt
+            cursor.execute("""
+                INSERT INTO submission_attempts
+                (
+                    submission_id,
+                    attempt_number,
+                    file_name,
+                    file_path,
+                    description,
+                    status
+                )
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (
+                submission_id,
+                attempt_number,
+                filename,
+                unique_filename,
+                description,
+                "Submitted"
+            ))
+
+            # Update the main submission record
+            cursor.execute("""
+                UPDATE submissions
+                SET file_name = ?,
+                    file_path = ?,
+                    description = ?,
+                    submitted_at = CURRENT_TIMESTAMP,
+                    status = 'Submitted',
+                    feedback = NULL
+                WHERE id = ?
+            """, (
+                filename,
+                unique_filename,
+                description,
+                submission_id
+            ))
+
+            connection.commit()
+            connection.close()
+
+            return redirect(url_for("my_submissions"))
+
+    connection.close()
+
+    return render_template(
+        "resubmit_assignment.html",
+        submission_id=submission_id,
+        error=error
+    )
+
 
 # =====================================
 # ADMIN: VIEW ALL SUBMISSIONS

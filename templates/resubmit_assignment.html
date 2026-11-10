@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Resubmit Assignment | CampusHub</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .resubmit-box {
+            max-width: 650px;
+            margin: 50px auto;
+            padding: 35px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            color: white;
+        }
+
+        .resubmit-box label {
+            display: block;
+            margin: 20px 0 8px;
+            color: #93c5fd;
+        }
+
+        .resubmit-box input,
+        .resubmit-box textarea {
+            width: 100%;
+            padding: 13px;
+            background: #26364d;
+            color: white;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .resubmit-box button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 25px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .error-message {
+            padding: 12px;
+            background: #7f1d1d;
+            border-radius: 8px;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <h2>🚀 CampusHub</h2>
+
+    <div>
+        <a href="{{ url_for('student_dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('my_submissions') }}">My Submissions</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+</nav>
+
+<main class="container">
+
+    <section class="resubmit-box">
+
+        <h1>🔄 Resubmit Assignment</h1>
+
+        <p>Upload your corrected assignment after reviewing admin feedback.</p>
+
+        {% if error %}
+            <div class="error-message">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data">
+
+            <label>Upload Corrected Assignment</label>
+
+            <input type="file"
+                   name="file"
+                   accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.zip"
+                   required>
+
+            <label>Description</label>
+
+            <textarea name="description"
+                      rows="5"
+                      placeholder="Describe your corrections..."></textarea>
+
+            <button type="submit">
+                Submit Revised Assignment
+            </button>
+
+        </form>
+
+    </section>
+
+</main>
+
+</body>
+</html>

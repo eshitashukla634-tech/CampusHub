@@ -141,6 +141,34 @@ CREATE TABLE IF NOT EXISTS submissions (
 )
 """)
 
+# 10. Assignment Submission Attempts Table
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS submission_attempts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    submission_id INTEGER NOT NULL,
+
+    attempt_number INTEGER NOT NULL,
+
+    file_name TEXT NOT NULL,
+    file_path TEXT NOT NULL,
+
+    description TEXT,
+
+    submitted_at TEXT DEFAULT CURRENT_TIMESTAMP,
+
+    status TEXT NOT NULL DEFAULT 'Submitted',
+
+    feedback TEXT,
+
+    FOREIGN KEY(submission_id)
+        REFERENCES submissions(id),
+
+    UNIQUE(submission_id, attempt_number)
+)
+""")
+
 # Save changes
 connection.commit()
 

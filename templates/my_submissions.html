@@ -129,6 +129,16 @@
                         {{ submission[5] if submission[5] else 'No feedback yet.' }}
                     </p>
 
+                    {% if submission[4] == 'Rejected' %}
+
+                     <a href="{{ url_for('resubmit_assignment',
+                        submission_id=submission[0]) }}"
+                         class="download-button">
+                                🔄 Resubmit Assignment
+                    </a>
+
+                {% endif %}
+
                 </div>
 
             </div>
