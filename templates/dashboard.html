@@ -37,8 +37,12 @@
         <a href="{{ url_for('assignments') }}">Assignments</a>
 
         <a href="{{ url_for('performance') }}">
-    Performance 📊
-</a>
+            Performance 📊
+        </a>
+
+        <a href="{{ url_for('admin_submissions') }}">
+            Submissions 📥
+        </a>
 
         <!-- Notification Bell -->
 
@@ -92,6 +96,20 @@
 
         </div>
 
+    </div>
+
+    <div class="dashboard-card">
+    <div class="card-icon">📥</div>
+
+    <h2>Submissions</h2>
+
+    <p>View, download, review and grade student assignments.</p>
+
+    <a href="{{ url_for('admin_submissions') }}">
+        Open →
+    </a>
+
+    
     </div>
 
 

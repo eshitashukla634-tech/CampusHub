@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Grade Assignment | CampusHub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Assignment Grading</h1>
+
+    <h3>Student Details</h3>
+
+    <p><strong>Name:</strong> {{ submission[1] }}</p>
+    <p><strong>Roll Number:</strong> {{ submission[2] }}</p>
+    <p><strong>Assignment:</strong> {{ submission[3] }}</p>
+    <p><strong>Submitted File:</strong> {{ submission[4] }}</p>
+
+    <hr>
+
+    <h2>Enter Marks</h2>
+
+    <form method="POST">
+
+        <label>Obtained Marks</label>
+        <input
+            type="number"
+            name="obtained_marks"
+            step="0.01"
+            min="0"
+            required
+            value="{{ existing_grade[0] if existing_grade else '' }}"
+        >
+
+        <br><br>
+
+        <label>Total Marks</label>
+        <input
+            type="number"
+            name="total_marks"
+            step="0.01"
+            min="0.01"
+            required
+            value="{{ existing_grade[1] if existing_grade else '' }}"
+        >
+
+        <br><br>
+
+        <label>Grade</label>
+        <select name="grade" required>
+
+            <option value="">Select Grade</option>
+
+            {% for g in ['A+', 'A', 'B+', 'B', 'C', 'D', 'F'] %}
+                <option value="{{ g }}"
+                    {% if existing_grade and existing_grade[2] == g %}selected{% endif %}>
+                    {{ g }}
+                </option>
+            {% endfor %}
+
+        </select>
+
+        <br><br>
+
+        <label>Remarks</label>
+        <textarea name="remarks" rows="4">{{ existing_grade[3] if existing_grade else '' }}</textarea>
+
+        <br><br>
+
+        <button type="submit">
+            Save Grade
+        </button>
+
+    </form>
+
+    <br>
+
+    <a href="{{ url_for('admin_submissions') }}">Back to Submissions</a>
+
+</div>
+
+</body>
+</html>

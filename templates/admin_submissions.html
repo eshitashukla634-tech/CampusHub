@@ -166,12 +166,19 @@
                             </td>
 
                             <td>
-    <a class="download-button"
-       href="{{ url_for('review_submission',
-                        submission_id=submission[0]) }}">
-        📝 Review
-    </a>
-</td>
+                        <a class="download-button"
+                                href="{{ url_for('review_submission',
+                                            submission_id=submission[0]) }}">
+                                                     📝 Review
+                         </a>
+
+                        <a href="{{ url_for('grade_submission', submission_id=submission[0]) }}"
+                                    class="download-button">
+                                                 📝 Grade Assignment
+                        </a>
+
+
+                    </td>
 
                         </tr>
 

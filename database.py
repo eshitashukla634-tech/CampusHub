@@ -169,6 +169,30 @@ CREATE TABLE IF NOT EXISTS submission_attempts (
 )
 """)
 
+# 11. Assignment Grading Table
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS assignment_grades (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    submission_id INTEGER NOT NULL UNIQUE,
+
+    obtained_marks REAL NOT NULL,
+    total_marks REAL NOT NULL,
+
+    grade TEXT NOT NULL,
+
+    remarks TEXT,
+
+    graded_at TEXT DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY(submission_id)
+        REFERENCES submissions(id)
+)
+""")
+
+
+
 # Save changes
 connection.commit()
 

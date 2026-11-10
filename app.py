@@ -187,8 +187,8 @@ def login():
 
 
 @app.route("/dashboard")
+@admin_required
 def dashboard():
-
 
     if "user_id" not in session:
        return redirect(url_for("login"))
@@ -574,7 +574,7 @@ def resubmit_assignment(submission_id):
 
             # Calculate next attempt number
             cursor.execute("""
-                SELECT COALESCE(MAX(attempt_number), 0)
+                SELECT COALESCE(MAX(attempt_number), 1)
                 FROM submission_attempts
                 WHERE submission_id = ?
             """, (submission_id,))
@@ -684,6 +684,98 @@ def admin_submissions():
     )
 
 
+# Admin Assignment Grading
+
+@app.route("/grade-submission/<int:submission_id>", methods=["GET", "POST"])
+@admin_required
+def grade_submission(submission_id):
+
+    connection = sqlite3.connect("campushub.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT
+            submissions.id,
+            students.name,
+            students.roll_no,
+            assignments.title,
+            submissions.file_name
+        FROM submissions
+        JOIN students
+        ON submissions.student_id = students.id
+        JOIN assignments
+        ON submissions.assignment_id = assignments.id
+        WHERE submissions.id = ?
+    """, (submission_id,))
+
+    submission = cursor.fetchone()
+
+    if submission is None:
+        connection.close()
+        return "Submission not found.", 404
+
+    cursor.execute("""
+        SELECT obtained_marks, total_marks, grade, remarks
+        FROM assignment_grades
+        WHERE submission_id = ?
+    """, (submission_id,))
+
+    existing_grade = cursor.fetchone()
+
+    if request.method == "POST":
+
+        try:
+            obtained_marks = float(request.form.get("obtained_marks"))
+            total_marks = float(request.form.get("total_marks"))
+        except (ValueError, TypeError):
+            connection.close()
+            return "Please enter valid marks.", 400
+
+        grade = request.form.get("grade", "").strip()
+        remarks = request.form.get("remarks", "").strip()
+
+        if total_marks <= 0 or obtained_marks < 0 or obtained_marks > total_marks:
+            connection.close()
+            return "Invalid marks. Check obtained and total marks.", 400
+
+        if not grade:
+            connection.close()
+            return "Please enter a grade.", 400
+
+        cursor.execute("""
+            INSERT INTO assignment_grades
+            (submission_id, obtained_marks, total_marks, grade, remarks)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(submission_id)
+            DO UPDATE SET
+                obtained_marks = excluded.obtained_marks,
+                total_marks = excluded.total_marks,
+                grade = excluded.grade,
+                remarks = excluded.remarks,
+                graded_at = CURRENT_TIMESTAMP
+        """, (
+            submission_id,
+            obtained_marks,
+            total_marks,
+            grade,
+            remarks
+        ))
+
+        connection.commit()
+        connection.close()
+
+        return redirect(url_for("admin_submissions"))
+
+    connection.close()
+
+    return render_template(
+        "grade_submission.html",
+        submission=submission,
+        existing_grade=existing_grade
+    )
+
+
+
 # =====================================
 # ADMIN: DOWNLOAD SUBMITTED FILE
 # =====================================
@@ -765,14 +857,6 @@ def review_submission(submission_id):
             SET status = ?, feedback = ?
             WHERE id = ?
         """, (status, feedback, submission_id))
-
-        # Find the student's login account
-        cursor.execute("""
-            SELECT id
-            FROM users
-            WHERE student_id = ?
-            AND role = 'student'
-        """, (None,))
 
         # Get student ID from the submission
         cursor.execute("""
@@ -865,7 +949,7 @@ def profile():
 
 
 @app.route("/students")
-@login_required
+@admin_required
 def students():
 
     search = request.args.get("search", "")
@@ -898,7 +982,7 @@ def students():
 
 
 @app.route("/add-student", methods=["GET", "POST"])
-@login_required
+@admin_required
 def add_student():
 
     if request.method == "POST":
@@ -1020,7 +1104,7 @@ def create_student_account():
 
 
 @app.route("/delete-student/<int:student_id>")
-@login_required
+@admin_required
 def delete_student(student_id):
 
     connection = sqlite3.connect("campushub.db")
@@ -1038,7 +1122,7 @@ def delete_student(student_id):
 
 
 @app.route("/edit-student/<int:student_id>", methods=["GET", "POST"])
-@login_required
+@admin_required
 def edit_student(student_id):
 
     connection = sqlite3.connect("campushub.db")
@@ -1078,7 +1162,7 @@ def edit_student(student_id):
 
 
 @app.route("/attendance")
-@login_required
+@admin_required
 def attendance():
 
     connection = sqlite3.connect("campushub.db")
@@ -1131,6 +1215,9 @@ def attendance():
 @app.route("/attendance-history/<int:student_id>")
 @login_required
 def attendance_history(student_id):
+    if session.get("user_role") == "student":
+        if session.get("student_id") != student_id:
+            return "Access denied.", 403
 
     connection = sqlite3.connect("campushub.db")
     cursor = connection.cursor()
@@ -1202,7 +1289,7 @@ def attendance_history(student_id):
 )
 
 @app.route("/mark-attendance/<int:student_id>/<status>")
-@login_required
+@admin_required
 def mark_attendance(student_id, status):
 
     if status not in ["Present", "Absent"]:
@@ -1344,7 +1431,7 @@ def add_assignment():
 
 
 @app.route("/edit-assignment/<int:assignment_id>", methods=["GET", "POST"])
-@login_required
+@admin_required
 def edit_assignment(assignment_id):
 
     connection = sqlite3.connect("campushub.db")
@@ -1396,7 +1483,7 @@ def edit_assignment(assignment_id):
 
 
 @app.route("/delete-assignment/<int:assignment_id>")
-@login_required
+@admin_required
 def delete_assignment(assignment_id):
 
     connection = sqlite3.connect("campushub.db")
@@ -1414,7 +1501,7 @@ def delete_assignment(assignment_id):
 
 
 @app.route("/update-assignment-status/<int:assignment_id>/<status>")
-@login_required
+@admin_required
 def update_assignment_status(assignment_id, status):
 
     if status not in ["Pending", "Completed"]:
@@ -1436,7 +1523,7 @@ def update_assignment_status(assignment_id, status):
 
 
 @app.route("/analytics")
-@login_required
+@admin_required
 def analytics():
 
 
@@ -1670,7 +1757,7 @@ def calculate_grade(percentage):
 # Performance Dashboard
 
 @app.route("/performance")
-@login_required
+@admin_required
 def performance():
 
     connection = sqlite3.connect("campushub.db")
@@ -1819,7 +1906,7 @@ def performance():
 # Add Performance
 
 @app.route("/add-performance", methods=["GET", "POST"])
-@login_required
+@admin_required
 def add_performance():
 
     connection = sqlite3.connect("campushub.db")
@@ -1886,7 +1973,7 @@ def add_performance():
     "/edit-performance/<int:performance_id>",
     methods=["GET", "POST"]
 )
-@login_required
+@admin_required
 def edit_performance(performance_id):
 
     connection = sqlite3.connect("campushub.db")
@@ -1954,7 +2041,7 @@ def edit_performance(performance_id):
 # Delete Performance
 
 @app.route("/delete-performance/<int:performance_id>")
-@login_required
+@admin_required
 def delete_performance(performance_id):
 
     connection = sqlite3.connect("campushub.db")
